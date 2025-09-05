@@ -102,7 +102,7 @@ export default function RegisterPage() {
           className="file-input file-input-bordered w-full"
         />
 
-        {/* Password */}
+      
         <div className="relative">
           <input
             {...register("password", { required: true, minLength: 6 })}
