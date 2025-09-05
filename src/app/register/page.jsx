@@ -67,7 +67,7 @@ export default function RegisterPage() {
           className="input input-bordered w-full"
         />
 
-        {/* Phone */}
+        
         <input
           {...register("phone", { required: true })}
           placeholder="Phone Number"
