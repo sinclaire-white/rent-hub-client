@@ -20,7 +20,7 @@ export async function POST(req) {
       );
     }
 
-    // check if phone number already exists (optional)
+    // check if phone number 
     const existingPhone = await users.findOne({ phone });
     if (existingPhone) {
       return NextResponse.json(
