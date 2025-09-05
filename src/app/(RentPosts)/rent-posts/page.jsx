@@ -44,16 +44,16 @@ const RentPostsPage = async () => {
                 alt={post.title}
                 className="w-full h-56 object-cover rounded-t-2xl"
               />
-                <div className="flex flex-row gap-2 px-6 pt-4">
-                  <span className="bg-gray-100 text-gray-700 text-xs font-semibold px-2 py-1 rounded-lg">
-                    {post.category}
+              <div className="flex flex-row gap-2 px-6 pt-4">
+                <span className="bg-gray-100 text-gray-700 text-xs font-semibold px-2 py-1 rounded-lg">
+                  {post.category}
+                </span>
+                {post.subcategory && (
+                  <span className="bg-gray-50 text-gray-500 text-xs font-medium px-2 py-1 rounded-lg">
+                    {post.subcategory}
                   </span>
-                  {post.subcategory && (
-                    <span className="bg-gray-50 text-gray-500 text-xs font-medium px-2 py-1 rounded-lg">
-                      {post.subcategory}
-                    </span>
-                  )}
-                </div>
+                )}
+              </div>
               <div className="flex flex-col gap-3 p-6">
                 <div className="text-xs text-gray-500 mb-1 font-medium">
                   {post.location}
@@ -94,11 +94,9 @@ const RentPostsPage = async () => {
                     /month
                   </span>
                 </div>
-                <Link href={`/rent-posts/${post._id}`} className="w-full">
-                  <button className="w-full bg-blue-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-blue-700 transition">
-                    See Detail
-                  </button>
-                </Link>
+                <button className="w-full bg-blue-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-blue-700 transition">
+                  See Detail
+                </button>
               </div>
             </div>
           </Link>
