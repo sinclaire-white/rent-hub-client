@@ -9,6 +9,7 @@ const handler = NextAuth({
         CredentialsProvider({
             async authorize(credentials) {
                 await dbConnect();
+                
                 const user = await User.findOne({ email: credentials.email });
                 if (!user) throw new Error('User not found');
                 const isValid = await bcrypt.compare(
