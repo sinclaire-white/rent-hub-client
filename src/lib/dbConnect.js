@@ -2,7 +2,7 @@ import { MongoClient, ServerApiVersion }  from 'mongodb';
 const uri = process.env.MONGODB_URI;
 
 
-function dbConnect(collection) {
+async function dbConnect(collection) {
     const client = new MongoClient(uri, {
       serverApi: {
         version: ServerApiVersion.v1,
@@ -10,9 +10,8 @@ function dbConnect(collection) {
         deprecationErrors: true,
       }
     });
-
+    await client.connect();
     return client.db(process.env.DB_NAME).collection(collection);
-
 }
 
 export default dbConnect;
