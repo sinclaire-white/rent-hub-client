@@ -4,6 +4,7 @@ import AdminSidebar from './components/admin/Sidebar';
 import VendorSidebar from './components/vendor/Sidebar';
 import UserSidebar from './components/user/Sidebar';
 import { rentals } from '../data/rentals';
+import Image from 'next/image';
 
 export default function DashboardPage() {
     const userRole = 'admin'; // পরে auth context থেকে dynamic হবে
@@ -55,7 +56,7 @@ export default function DashboardPage() {
                                 width: '250px',
                             }}
                         >
-                            <img
+                            <Image
                                 src={rental.imageUrl}
                                 alt={rental.title}
                                 style={{
