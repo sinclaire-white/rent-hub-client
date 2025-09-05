@@ -11,17 +11,17 @@ function formatDate(dateStr) {
 }
 
 async function getRentPost(id) {
-  const fs = require("fs");
-  const path = require("path");
-  const filePath = path.join(process.cwd(), "public", "rentPosts.json");
-  const data = fs.readFileSync(filePath, "utf8");
-  const posts = JSON.parse(data);
-  return posts.find((post) => post.id === id);
+  const res = await fetch(`http://localhost:3000/api/rent-posts/${id}`, { cache: "no-store" });
+  if (!res.ok) return null;
+  const post = await res.json();
+  // Convert MongoDB _id to id for compatibility if needed
+  if (post && post._id) post.id = post._id;
+  return post;
 }
 
 const DetailPage = async (props) => {
-  const params = await props.params;
-  const post = await getRentPost(params.id);
+  const params = typeof props.params?.then === "function" ? await props.params : props.params;
+  const post = await getRentPost(params._id || params.id);
   if (!post) return notFound();
   return (
     <div className="min-h-screen w-full bg-white flex flex-col my-10">
@@ -47,7 +47,11 @@ const DetailPage = async (props) => {
             <div className="flex justify-between py-1 text-sm">
               <span>Price</span>
               <span className="font-bold text-gray-900">
-                ৳{post.rentPrice.toLocaleString()}/month
+                ৳{typeof post.rentPrice === "number"
+                  ? post.rentPrice.toLocaleString()
+                  : Number(post.rentPrice)
+                  ? Number(post.rentPrice).toLocaleString()
+                  : "0"}/month
               </span>
             </div>
             <div className="flex justify-between py-1 text-sm">
