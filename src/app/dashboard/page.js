@@ -56,7 +56,7 @@ export default function DashboardPage() {
                                 width: '250px',
                             }}
                         >
-                            <Image
+                            <img
                                 src={rental.imageUrl}
                                 alt={rental.title}
                                 style={{
