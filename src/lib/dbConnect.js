@@ -16,3 +16,9 @@ function dbConnect(collection) {
 }
 
 export default dbConnect;
+
+// --- IGNORE ---
+// MONGODB_URI="your_mongodb_connection_string" -- from env.local
+// DB_NAME="your_database_name" -- from env.local
+// collection="your_collection_name"
+// --- IGNORE ---
