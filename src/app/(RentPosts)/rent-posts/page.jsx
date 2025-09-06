@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Link from "next/link";
 
 async function getRentPosts() {
@@ -24,8 +25,28 @@ function formatDate(dateStr) {
   return `${day}${suffix} ${month} ${year}`;
 }
 
-const RentPostsPage = async () => {
-  const posts = await getRentPosts();
+const RentPostsPage = () => {
+  const [posts, setPosts] = useState([]);
+  React.useEffect(() => {
+    async function fetchPosts() {
+      const res = await fetch("/api/rent-posts", { cache: "no-store" });
+      if (!res.ok) return setPosts([]);
+      setPosts(await res.json());
+    }
+    fetchPosts();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    const res = await fetch(`/api/rent-posts/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setPosts((prev) => prev.filter((p) => p._id !== id));
+      alert("Deleted successfully!");
+    } else {
+      alert("Delete failed.");
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-white flex flex-col py-12">
       <h1 className="text-center mb-10 text-4xl font-bold text-gray-900 tracking-wide font-sans">
@@ -91,12 +112,30 @@ const RentPostsPage = async () => {
                     ? Number(post.rentPrice).toLocaleString()
                     : "0"}
                   <span className="text-xs font-medium text-gray-500">
-                    /month
+                    {['Vehicles', 'Tools & Equipment', 'Events & Venues'].includes(post.category) ? '/day' : '/month'}
                   </span>
                 </div>
-                <button className="w-full bg-blue-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-blue-700 transition">
+                <button className="w-full bg-blue-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-blue-700 transition mb-2">
                   See Detail
                 </button>
+                <div className="flex flex-row gap-2 w-full">
+                  <Link href={`/edit-rent-posts/${post._id}`} className="w-1/2">
+                    <button type="button" className="w-full bg-yellow-500 text-white font-semibold py-2 rounded-xl text-sm hover:bg-yellow-600 transition">
+                      Edit
+                    </button>
+                  </Link>
+                  <button
+                    type="button"
+                    className="w-1/2 bg-red-600 text-white font-semibold py-2 rounded-xl text-sm hover:bg-red-700 transition"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDelete(post._id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           </Link>
