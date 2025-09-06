@@ -11,8 +11,7 @@ export const rentals = [
         rentPrice: 25000,
         availableFrom: '2025-09-10',
         availableTo: '2026-09-10',
-        imageUrl:
-            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+        imageUrl: 'https://i.ibb.co/cSXXDfx5/Ix-I18-R8-Y-400x400.jpg',
         latitude: 23.8103,
         longitude: 90.4125,
     },
@@ -28,8 +27,7 @@ export const rentals = [
         rentPrice: 5000,
         availableFrom: '2025-09-15',
         availableTo: '2025-12-15',
-        imageUrl:
-            'https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=800&q=80',
+        imageUrl: 'https://i.ibb.co/cSXXDfx5/Ix-I18-R8-Y-400x400.jpg',
         latitude: 22.3569,
         longitude: 91.7832,
     },
