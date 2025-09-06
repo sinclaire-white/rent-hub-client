@@ -24,9 +24,6 @@ function formatDate(dateStr) {
   else if (j === 3 && k !== 13) suffix = "rd";
   return `${day}${suffix} ${month} ${year}`;
 }
-
-
-
 const RentPostsPage = () => {
   const [posts, setPosts] = useState([]);
   React.useEffect(() => {
