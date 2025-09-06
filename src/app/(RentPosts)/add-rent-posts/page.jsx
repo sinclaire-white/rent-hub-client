@@ -422,7 +422,7 @@ const AddRentPostsPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Rent Price (৳/month)
+                Rent Price (৳/{["Vehicles", "Tools & Equipment", "Events & Venues"].includes(form.category) ? "day" : "month"})
               </label>
               <input
                 name="rentPrice"

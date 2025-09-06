@@ -21,7 +21,7 @@ async function getRentPost(id) {
 
 const DetailPage = async (props) => {
   const params = typeof props.params?.then === "function" ? await props.params : props.params;
-  const post = await getRentPost(params._id || params.id);
+  const post = await getRentPost(params.id);
   if (!post) return notFound();
   return (
     <div className="min-h-screen w-full bg-white flex flex-col my-10">
@@ -51,7 +51,8 @@ const DetailPage = async (props) => {
                   ? post.rentPrice.toLocaleString()
                   : Number(post.rentPrice)
                   ? Number(post.rentPrice).toLocaleString()
-                  : "0"}/month
+                  : "0"}
+                {['Vehicles', 'Tools & Equipment', 'Events & Venues'].includes(post.category) ? '/day' : '/month'}
               </span>
             </div>
             <div className="flex justify-between py-1 text-sm">
@@ -136,6 +137,11 @@ const DetailPage = async (props) => {
           <button className=" bg-gray-200 px-5 text-gray-800 font-semibold py-3 rounded-xl text-lg hover:bg-gray-300 transition">
             Contact Host
           </button>
+          <a href={`/edit-rent-posts/${post.id}`}>
+            <button className="bg-yellow-500 text-white px-5 font-semibold py-3 rounded-xl text-lg hover:bg-yellow-600 transition">
+              Edit
+            </button>
+          </a>
         </div>
       </section>
     </div>
