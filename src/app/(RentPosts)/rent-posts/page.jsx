@@ -25,6 +25,8 @@ function formatDate(dateStr) {
   return `${day}${suffix} ${month} ${year}`;
 }
 
+
+
 const RentPostsPage = () => {
   const [posts, setPosts] = useState([]);
   React.useEffect(() => {
