@@ -87,7 +87,7 @@ export default function RegisterPage() {
         {/* Image URL */}
         <input
           {...register("imageUrl")}
-          placeholder="Profile Image URL (optional)"
+          placeholder="Profile Image URL "
           type="url"
           className="input input-bordered w-full border-black text-black placeholder-black"
         />
@@ -97,10 +97,10 @@ export default function RegisterPage() {
           {...register("imageFile")}
           type="file"
           accept="image/*"
-          className="file-input file-input-bordered w-full border-black text-black"
+          className="file-input file-input-bordered w-full"
         />
 
-        {/* Password */}
+      
         <div className="relative">
           <input
             {...register("password", { required: true, minLength: 6 })}

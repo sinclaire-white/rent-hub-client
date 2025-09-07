@@ -18,7 +18,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-base-100 dark:bg-base-200">
       <Banner />
       <main className="flex-grow container mx-auto px-4 max-w-7xl">
-        
+         
         <CategoriesSection></CategoriesSection>
         <FeaturedListings></FeaturedListings>
         <PopularListings></PopularListings>

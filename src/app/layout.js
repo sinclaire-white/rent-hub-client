@@ -1,42 +1,41 @@
+"use client"; // <-- Add this at the top to make this a client component
+
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SessionProvider } from "next-auth/react";
 import Navbar from "@/components/Navbar";
-import NextAuthProvider from "@/Providers/NextAuthProvider";
-
-// ✅ Import Google fonts
-import { Geist, Geist_Mono } from "next/font/google";
 
 const geistSans = Geist({
-  subsets: ["latin"],
   variable: "--font-geist-sans",
+  subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  subsets: ["latin"],
   variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Rent Hub",
-  description: "Your go-to rent website",
-};
+// export const metadata = {
+//   title: "Rent Hub",
+//   description: "Your go-to rent website",
+// };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children, session }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <NextAuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider session={session}>
             <Navbar />
-           
             {children}
-          </ThemeProvider>
-        </NextAuthProvider>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
