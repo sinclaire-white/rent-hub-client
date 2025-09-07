@@ -1,10 +1,20 @@
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ModeToggle } from "@/components/ModeToggle";
 import Navbar from "@/components/Navbar";
-import Banner from "@/components/ui/Banner";
+import NextAuthProvider from "@/Providers/NextAuthProvider";
 
+// ✅ Import Google fonts
+import { Geist, Geist_Mono } from "next/font/google";
 
+const geistSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+});
 
 export const metadata = {
   title: "Rent Hub",
@@ -13,26 +23,20 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-<<<<<<< HEAD
-  <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-           <ThemeProvider
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <NextAuthProvider>
+          <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
-          <Navbar></Navbar>
-          <Banner></Banner>
+            <Navbar />
+           
             {children}
           </ThemeProvider>
-=======
-    <html lang="en">
-      <body className="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        {children}
->>>>>>> 7db84cfb1e1d7b6938acfe1b8ded1d51ae861f8f
+        </NextAuthProvider>
       </body>
     </html>
   );

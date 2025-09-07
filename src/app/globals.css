@@ -1,5 +1,4 @@
 @import "tailwindcss";
-<<<<<<< HEAD
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -121,6 +120,3 @@
     @apply bg-background text-foreground;
   }
 }
-=======
-@plugin "daisyui";
->>>>>>> 7db84cfb1e1d7b6938acfe1b8ded1d51ae861f8f

@@ -39,24 +39,22 @@ export default function RegisterPage() {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow">
-      <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        className="space-y-4"
-      >
+      <h2 className="text-2xl font-bold mb-4 text-center text-black">
+        Register
+      </h2>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         {/* First Name */}
         <input
           {...register("firstName", { required: true })}
           placeholder="First Name"
-          className="input input-bordered w-full"
+          className="input input-bordered w-full border-black text-black placeholder-black"
         />
 
         {/* Last Name */}
         <input
           {...register("lastName", { required: true })}
           placeholder="Last Name"
-          className="input input-bordered w-full"
+          className="input input-bordered w-full border-black text-black placeholder-black"
         />
 
         {/* Email */}
@@ -64,21 +62,21 @@ export default function RegisterPage() {
           {...register("email", { required: true })}
           placeholder="Email"
           type="email"
-          className="input input-bordered w-full"
+          className="input input-bordered w-full border-black text-black placeholder-black"
         />
 
-        
+        {/* Phone */}
         <input
           {...register("phone", { required: true })}
           placeholder="Phone Number"
           type="tel"
-          className="input input-bordered w-full"
+          className="input input-bordered w-full border-black text-black placeholder-black"
         />
 
         {/* Gender */}
         <select
           {...register("gender", { required: true })}
-          className="select select-bordered w-full"
+          className="select select-bordered w-full border-black text-black"
         >
           <option value="">Select Gender</option>
           <option value="male">Male</option>
@@ -91,7 +89,7 @@ export default function RegisterPage() {
           {...register("imageUrl")}
           placeholder="Profile Image URL (optional)"
           type="url"
-          className="input input-bordered w-full"
+          className="input input-bordered w-full border-black text-black placeholder-black"
         />
 
         {/* Image File */}
@@ -99,28 +97,31 @@ export default function RegisterPage() {
           {...register("imageFile")}
           type="file"
           accept="image/*"
-          className="file-input file-input-bordered w-full"
+          className="file-input file-input-bordered w-full border-black text-black"
         />
 
-      
+        {/* Password */}
         <div className="relative">
           <input
             {...register("password", { required: true, minLength: 6 })}
             type={showPassword ? "text" : "password"}
             placeholder="Password"
-            className="input input-bordered w-full"
+            className="input input-bordered w-full border-black text-black placeholder-black"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-3 text-sm"
+            className="absolute right-3 top-3 text-sm text-black"
           >
             {showPassword ? "🙈" : "👁"}
           </button>
         </div>
 
         {/* Submit Button */}
-        <button type="submit" className="btn btn-primary w-full">
+        <button
+          type="submit"
+          className="btn btn-primary w-full bg-black border-black text-white hover:bg-gray-800"
+        >
           Register
         </button>
       </form>

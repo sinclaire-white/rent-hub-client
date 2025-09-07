@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import CategoriesSection from './components/Categories';
+import Banner from "@/components/ui/Banner";
 import FeaturedListings from './components/FeaturedListings';
 import PopularListings from './components/PopularListings';
 import TopRatedListings from './components/TopRatedListings';
@@ -15,8 +16,9 @@ import Footer from './components/Footer';
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-base-100 dark:bg-base-200">
-     
+      <Banner />
       <main className="flex-grow container mx-auto px-4 max-w-7xl">
+        
         <CategoriesSection></CategoriesSection>
         <FeaturedListings></FeaturedListings>
         <PopularListings></PopularListings>
