@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion }  from 'mongodb';
-const uri = process.env.MONGODB_URI;
+const uri = process.env.MONGO_URI;
 
 
 async function dbConnect(collection) {
@@ -11,7 +11,9 @@ async function dbConnect(collection) {
       }
     });
     await client.connect();
-    return client.db(process.env.DB_NAME).collection(collection);
+    const db = client.db(process.env.DB_NAME);
+    const coll = db.collection(collection);
+    return { client, collection: coll };
 }
 
 export default dbConnect;

@@ -2,6 +2,7 @@ import React from "react";
 import AIInsights from "./AIInsights";
 
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 function formatDate(dateStr) {
   const date = new Date(dateStr);
@@ -29,11 +30,14 @@ const DetailPage = async (props) => {
       <main className="w-full mx-auto px-2 sm:px-6 py-8 flex flex-col md:flex-row gap-10">
         {/* Left: Image */}
         <div className="md:w-7/12 w-full flex flex-col items-center justify-center gap-4">
-          <img
-            src={post.imageUrl}
-            alt={post.title}
-            className="w-full max-h-[420px] object-cover rounded-2xl shadow-lg"
-          />
+          <div className="w-full aspect-video rounded-2xl shadow-lg overflow-hidden flex items-center justify-center bg-gray-100">
+            <img
+              src={post.imageUrl}
+              alt={post.title}
+              className="w-full h-full object-contain rounded-2xl"
+              style={{ maxHeight: '480px', background: 'white' }}
+            />
+          </div>
         </div>
         {/* Right: Details */}
         <div className="md:w-5/12 w-full flex flex-col gap-5 justify-center">
@@ -108,17 +112,14 @@ const DetailPage = async (props) => {
           ></iframe>
         </div>
         <div className="flex gap-4 mt-8">
-          <button className="bg-blue-600 text-white px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition">
-            Book Now
-          </button>
+          <Link href={`/checkout/${post.id}`}>
+            <button className="bg-blue-600 text-white px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition">
+              Book Now
+            </button>
+          </Link>
           <button className=" bg-gray-200 px-5 text-gray-800 font-semibold py-3 rounded-xl text-lg hover:bg-gray-300 transition">
             Contact Host
           </button>
-          <a href={`/edit-rent-posts/${post.id}`}>
-            <button className="bg-yellow-500 text-white px-5 font-semibold py-3 rounded-xl text-lg hover:bg-yellow-600 transition">
-              Edit
-            </button>
-          </a>
         </div>
       </section>
     </div>

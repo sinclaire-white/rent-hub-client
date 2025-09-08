@@ -84,6 +84,7 @@ export default function Navbar() {
           {/* Always show Dark Mode Toggle */}
           <ModeToggle />
 
+
           {status === "authenticated" ? (
             <>
               {/* Notifications */}
@@ -143,6 +144,31 @@ export default function Navbar() {
               Register
             </Link>
           )}
+
+          {/* Profile Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="flex items-center gap-2">
+                <User className="w-5 h-5" /> <span className="hidden sm:inline">Profile</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href="/profile" className="flex items-center gap-2">
+                  <User className="w-4 h-4" /> My Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard`} className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4" /> Dashboard
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600 cursor-pointer">
+                <LogOut className="w-4 h-4" /> Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
         </div>
 
         {/* Mobile Menu Button */}
