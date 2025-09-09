@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
@@ -28,6 +29,12 @@ export async function POST(req) {
         { _id: pendingBooking._id },
         { $set: { status: "confirmed", confirmedAt: new Date() } }
       );
+      // --- CHANGE START: Increment rentalCount in rentPosts ---
+      await db.collection("rentPosts").updateOne(
+        { _id: new ObjectId(pendingBooking.postId) },
+        { $inc: { rentalCount: 1 } }
+      );
+      // --- CHANGE END ---
     }
 
     // Insert payment record

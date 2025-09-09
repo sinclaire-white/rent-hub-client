@@ -7,12 +7,11 @@ export async function POST(req) {
     const { firstName, lastName, email, phone, gender, password, imageUrl } = await req.json();
 
     const client = await clientPromise;
-    const db = client.db("RentHub");
+    const db = client.db(process.env.DB_NAME || "RentHub");
     const users = db.collection("users");
 
-    // Check for both email and phone in a single query
     const existingUser = await users.findOne({
-      $or: [{ email: email }, { phone: phone }],
+      $or: [{ email }, { phone }],
     });
 
     if (existingUser) {
@@ -23,11 +22,9 @@ export async function POST(req) {
         return NextResponse.json({ message: "Phone number already exists" }, { status: 400 });
       }
     }
-    
-    // Hash password
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
     await users.insertOne({
       firstName,
       lastName,
@@ -42,10 +39,10 @@ export async function POST(req) {
 
     return NextResponse.json(
       { message: "User registered successfully" },
-      { status: 201 } // Use 201 for "created"
+      { status: 201 }
     );
-    
   } catch (error) {
+    console.error("Registration error:", error);
     return NextResponse.json(
       { message: error.message || "Error registering user" },
       { status: 500 }

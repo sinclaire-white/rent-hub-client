@@ -1,44 +1,49 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import ListingCard from './ListingCard';
+import { useCachedFetch } from "./hooks/useCachedFetch";
+import { useBookmarks } from "./hooks/useBookmarks";
+import ListingCard from "./ListingCard";
+import { motion } from "framer-motion";
+import { useState } from "react";
 
 export default function FeaturedListings() {
-  const [listings, setListings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: listings, isLoading, error } = useCachedFetch("/api/rent-posts?featured=true");
+  const { bookmarks } = useBookmarks();
+  const [bookmarkState, setBookmarkState] = useState({});
 
-  useEffect(() => {
-    fetch('/api/rent-posts?featured=true')
-      .then(res => res.json())
-      .then(data => {
-        // The most likely cause of the error is that the API response is an object
-        // containing the listings array, e.g., { listings: [...] }.
-        // This line checks for that and safely sets the state.
-        const listingsArray = data.listings || data;
-        
-        if (Array.isArray(listingsArray)) {
-          setListings(listingsArray);
-        } else {
-          console.error("Fetched data is not an array:", listingsArray);
-          setListings([]);
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch featured listings:", error);
-        setListings([]);
-        setIsLoading(false);
-      });
-  }, []);
+  const handleBookmarkToggle = (listingId, isBookmarked, bookmarkId) => {
+    setBookmarkState(prev => ({
+      ...prev,
+      [listingId]: { isBookmarked, bookmarkId },
+    }));
+  };
 
   if (isLoading) {
     return (
       <section className="py-12 text-center">
-        <h2 className="mb-8 text-3xl font-bold text-base-content">
-          Featured Listings
-        </h2>
-        <div className="flex items-center justify-center h-48">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
+        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Featured Listings</h2>
+        <div className="grid max-w-7xl grid-cols-1 gap-6 mx-auto md:grid-cols-3">
+          {[...Array(3)].map((_, index) => (
+            <div key={index} className="animate-pulse">
+              <div className="w-full h-48 bg-gray-200 rounded-lg dark:bg-gray-700"></div>
+              <div className="mt-4 space-y-2">
+                <div className="w-3/4 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
+                <div className="w-1/2 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
+                <div className="w-2/3 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-12 text-center">
+        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Featured Listings</h2>
+        <div className="p-8 text-center text-error dark:text-error">
+          <p>Failed to load listings. Please try again later.</p>
         </div>
       </section>
     );
@@ -47,10 +52,8 @@ export default function FeaturedListings() {
   if (listings.length === 0) {
     return (
       <section className="py-12 text-center">
-        <h2 className="mb-8 text-3xl font-bold text-base-content">
-          Featured Listings
-        </h2>
-        <div className="p-8 text-center text-gray-500">
+        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Featured Listings</h2>
+        <div className="p-8 text-center text-gray-500 dark:text-gray-400">
           <p>No featured listings are available at the moment.</p>
         </div>
       </section>
@@ -59,22 +62,32 @@ export default function FeaturedListings() {
 
   return (
     <section className="py-12">
-      <h2 className="mb-8 text-3xl font-bold text-center text-base-content">
-        Featured Listings
-      </h2>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {listings.map(listing => (
-          <ListingCard
-            key={listing._id}
-            id={listing._id}
-            title={listing.title}
-            price={listing.rentPrice}
-            category={listing.category}
-            image={listing.imageUrl}
-            aiSummary={listing.aiSummary}
-          />
-        ))}
-      </div>
+      <h2 className="mb-8 text-3xl font-bold text-center text-base-content dark:text-base-content">Featured Listings</h2>
+      <motion.div
+        className="grid max-w-6xl grid-cols-1 gap-6 mx-auto md:grid-cols-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {listings.map(listing => {
+          const bookmark = bookmarks.find(b => b.listingId === listing._id) || {};
+          const isBookmarked = !!bookmark.id || bookmarkState[listing._id]?.isBookmarked || false;
+          const bookmarkId = bookmark.id || bookmarkState[listing._id]?.bookmarkId;
+          return (
+            <ListingCard
+              key={listing._id}
+              id={listing._id}
+              title={listing.title}
+              price={listing.rentPrice}
+              category={listing.category}
+              image={listing.imageUrl}
+              isBookmarked={isBookmarked}
+              bookmarkId={bookmarkId}
+              onBookmarkToggle={handleBookmarkToggle}
+            />
+          );
+        })}
+      </motion.div>
     </section>
   );
 }
