@@ -44,11 +44,16 @@ export default function DashboardLayout({ children }) {
 
     return (
         <div className="flex min-h-screen bg-gray-100">
-            <SidebarComponent />
-            <div className="flex-1 flex flex-col">
-                <Header user={session.user} />
+            {/* Fixed Sidebar */}
+            <div className="w-64 h-screen fixed top-16 left-0 bg-white shadow-md">
+                <SidebarComponent />
+            </div>
+
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col ml-64">
+                {/* <Header user={session.user} /> */}
                 <main className="flex-1 p-6 overflow-y-auto">{children}</main>
-                <Footer />
+                {/* <Footer /> */}
             </div>
         </div>
     );
