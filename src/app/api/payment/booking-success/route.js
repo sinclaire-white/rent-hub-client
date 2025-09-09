@@ -38,8 +38,8 @@ export async function POST(req) {
           { $set: { status: "confirmed", confirmedAt: new Date() } }
         );
       // Increment rentCount in rentPost collection
-      await db.collection("rentPost").updateOne(
-        { _id: pendingBooking.postId }, // assuming postId is stored in booking
+      await db.collection("rentPosts").updateOne(
+        { _id: new ObjectId(pendingBooking.postId) }, // assuming postId is stored in booking
         { $inc: { rentCount: 1 } },
         { upsert: true } // create rentCount if it doesn't exist
       );
@@ -66,17 +66,17 @@ export async function POST(req) {
 
     // Redirect user to proper page
     if (status === "VALID") {
-      return NextResponse.redirect(
+      return Response.redirect(
         `${process.env.NEXT_PUBLIC_BASE_URL}/booking/payment-success`
       );
     } else {
-      return NextResponse.redirect(
+      return Response.redirect(
         `${process.env.NEXT_PUBLIC_BASE_URL}/booking/payment-cancelled`
       );
     }
   } catch (err) {
     console.error("Booking Payment Success Error:", err);
-    return NextResponse.json(
+    return Response.json(
       { error: "Something went wrong" },
       { status: 500 }
     );
