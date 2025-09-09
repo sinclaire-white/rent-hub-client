@@ -50,7 +50,7 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b shadow-sm bg-base-100 border-base-200">
-      <div className="flex items-center h-16 mx-auto max-w-7xl">
+      <div className="flex items-center h-16 px-2 mx-auto max-w-7xl md:px-6">
         {/* Left: Logo */}
         <div className="flex-none">
           <Link href="/" className="p-0 text-xl font-bold normal-case btn btn-ghost">
