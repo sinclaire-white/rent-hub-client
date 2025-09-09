@@ -61,6 +61,7 @@ export default function FeaturedListings() {
   }
 
   return (
+
     <section className="py-12">
       <h2 className="mb-8 text-3xl font-bold text-center text-base-content dark:text-base-content">Featured Listings</h2>
       <motion.div

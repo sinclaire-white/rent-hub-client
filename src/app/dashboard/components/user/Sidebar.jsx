@@ -7,12 +7,13 @@ export default function UserSidebar() {
     const pathname = usePathname();
     const links = [
         { href: '/dashboard', label: 'Dashboard' },
-        { href: '/dashboard/rentals', label: 'Browse Rentals' },
-        { href: '/dashboard/favorites', label: 'Favorites' },
+        { href: '/dashboard/renter/my-orders', label: 'My Orders' },
+        { href: '/dashboard/renter/my-favorites', label: 'Favorites List' },
+        { href: '/dashboard/renter/my-profile', label: 'Profile' },
     ];
 
     return (
-        <div className="w-64 bg-white shadow-md h-screen flex flex-col">
+    <div className="w-64 bg-base-200 shadow-md h-screen flex flex-col text-base-content">
             <div className="p-4 border-b">
                 <h2 className="text-xl font-bold text-blue-600">User Panel</h2>
             </div>

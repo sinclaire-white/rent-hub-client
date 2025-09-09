@@ -1,163 +1,92 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
-import clientPromise from "@/lib/mongodb";
-import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/authOptions';
+import dbConnect from '@/lib/dbConnect';
+import { NextResponse } from 'next/server';
+import { ObjectId } from 'mongodb';
+
+export async function PATCH(req) {
+  // Only allow logged-in users
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { postId, action } = await req.json();
+  if (!postId || !['add', 'remove'].includes(action)) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
+
+  const { collection, client } = await dbConnect('users');
+  try {
+    const user = await collection.findOne({ email: session.user.email });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    let update;
+    if (action === 'add') {
+      update = { $addToSet: { bookmarks: postId } };
+    } else {
+      update = { $pull: { bookmarks: postId } };
+    }
+
+    await collection.updateOne({ email: session.user.email }, update);
+    return NextResponse.json({ message: 'Bookmark updated' }, { status: 200 });
+  } finally {
+    await client.close();
+  }
+}
 
 export async function GET(req) {
+  // Session fetch
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { collection, client } = await dbConnect('users');
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const user = await collection.findOne({ email: session.user.email });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || "RentHub");
-
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("id");
-    const email = searchParams.get("email");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const isAdmin = session.user.role === "admin";
-
-    const pipeline = (query) => [
-      { $match: query },
-      {
-        $lookup: {
-          from: "bookmarks",
-          localField: "_id",
-          foreignField: "userId",
-          as: "bookmarks",
-        },
-      },
-      {
-        $lookup: {
-          from: "rentHistory",
-          localField: "_id",
-          foreignField: "userId",
-          as: "rentHistory",
-        },
-      },
-      {
-        $lookup: {
-          from: "paymentHistory",
-          localField: "_id",
-          foreignField: "userId",
-          as: "paymentHistory",
-        },
-      },
-      {
-        $project: {
-          password: 0,
-          "bookmarks.userId": 0,
-          "rentHistory.userId": 0,
-          "paymentHistory.userId": 0,
-        },
-      },
-    ];
-
-    if (userId || email) {
-      // Validate userId
-      if (userId && !ObjectId.isValid(userId)) {
-        return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
-      }
-
-      const query = userId ? { _id: new ObjectId(userId) } : { email };
-      const users = await db.collection("users").aggregate(pipeline(query)).toArray();
-
-      if (!users.length) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
-      }
-
-      const user = users[0];
-      if (!isAdmin && user._id.toString() !== session.user.id) {
-        return NextResponse.json({ error: "Forbidden: You can only access your own data" }, { status: 403 });
-      }
-
-      return NextResponse.json({
-        id: user._id.toString(),
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phone: user.phone,
-        gender: user.gender,
-        image: user.image,
-        role: user.role,
-        createdAt: user.createdAt,
-        bookmarks: user.bookmarks.map(b => ({
-          id: b._id.toString(),
-          listingId: b.listingId.toString(),
-          createdAt: b.createdAt,
-        })),
-        rentHistory: user.rentHistory.map(r => ({
-          id: r._id.toString(),
-          listingId: r.listingId.toString(),
-          startDate: r.startDate,
-          endDate: r.endDate,
-          status: r.status,
-          createdAt: r.createdAt,
-        })),
-        paymentHistory: user.paymentHistory.map(p => ({
-          id: p._id.toString(),
-          rentId: p.rentId.toString(),
-          amount: p.amount,
-          paymentMethod: p.paymentMethod,
-          status: p.status,
-          createdAt: p.createdAt,
-        })),
-      });
-    } else if (isAdmin) {
-      const users = await db.collection("users")
-        .aggregate([
-          ...pipeline({}),
-          { $skip: (page - 1) * limit },
-          { $limit: limit },
-        ])
-        .toArray();
-      const total = await db.collection("users").countDocuments();
-      return NextResponse.json({
-        users: users.map(user => ({
-          id: user._id.toString(),
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phone: user.phone,
-          gender: user.gender,
-          image: user.image,
-          role: user.role,
-          createdAt: user.createdAt,
-          bookmarks: user.bookmarks.map(b => ({
-            id: b._id.toString(),
-            listingId: b.listingId.toString(),
-            createdAt: b.createdAt,
-          })),
-          rentHistory: user.rentHistory.map(r => ({
-            id: r._id.toString(),
-            listingId: r.listingId.toString(),
-            startDate: r.startDate,
-            endDate: r.endDate,
-            status: r.status,
-            createdAt: r.createdAt,
-          })),
-          paymentHistory: user.paymentHistory.map(p => ({
-            id: p._id.toString(),
-            rentId: p.rentId.toString(),
-            amount: p.amount,
-            paymentMethod: p.paymentMethod,
-            status: p.status,
-            createdAt: p.createdAt,
-          })),
-        })),
-        total,
-        page,
-        limit,
-      });
-    } else {
-      return NextResponse.json({ error: "Forbidden: Admin access required for all users" }, { status: 403 });
+    // If admin, return all users
+    if (user.role === 'admin') {
+      const data = await collection.find({}).toArray();
+      return NextResponse.json(data, { status: 200 });
     }
-  } catch (err) {
-    console.error("Error fetching users:", err);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+
+    // Otherwise, return only current user's data
+    return NextResponse.json(user, { status: 200 });
+  } finally {
+    await client.close();
+  }
+}
+
+export async function DELETE(req) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const url = new URL(req.url);
+  const id = url.searchParams.get('id');
+  if (!id) {
+    return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+  }
+
+  const { client, collection } = await dbConnect('users');
+  try {
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 },
+      );
+    }
+    return NextResponse.json({ message: 'User deleted successfully' });
+  } finally {
+    await client.close();
   }
 }

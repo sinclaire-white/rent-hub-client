@@ -33,7 +33,7 @@ export async function POST(req) {
       gender,
       image: imageUrl || null,
       password: hashedPassword,
-      role: "renter",
+      role: "owner",
       createdAt: new Date(),
     });
 

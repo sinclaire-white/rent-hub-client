@@ -25,8 +25,8 @@ export default function DashboardLayout({ children }) {
 
     if (status === 'loading') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <div className="text-lg text-gray-600">
+            <div className="min-h-screen flex items-center justify-center bg-base-100 text-base-content">
+                <div className="text-lg text-base-content">
                     Loading Dashboard...
                 </div>
             </div>
@@ -37,17 +37,17 @@ export default function DashboardLayout({ children }) {
         return null; 
     }
 
-    const role = session.user?.role || 'user';
+    const role = session.user?.role || 'renter';
     let SidebarComponent = UserSidebar;
     if (role === 'admin') SidebarComponent = AdminSidebar;
-    else if (role === 'vendor') SidebarComponent = VendorSidebar;
+    else if (role === 'owner') SidebarComponent = VendorSidebar;
 
     return (
-        <div className="flex min-h-screen bg-gray-100">
+        <div className="flex min-h-screen bg-base-100 text-base-content">
             <SidebarComponent />
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col bg-base-100 text-base-content">
                 <Header user={session.user} />
-                <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+                <main className="flex-1 p-6 overflow-y-auto bg-base-100 text-base-content">{children}</main>
                 <Footer />
             </div>
         </div>

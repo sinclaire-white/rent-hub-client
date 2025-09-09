@@ -4,6 +4,13 @@ import clientPromise from "./mongodb";
 import bcrypt from "bcryptjs";
 import { ObjectId } from "mongodb";
 
+async function getUserRole(email) {
+    const client = await clientPromise;
+    const db = client.db('RentHub');
+    const user = await db.collection('users').findOne({ email });
+    return user?.role || 'renter';
+}
+
 export const authOptions = {
   providers: [
     GoogleProvider({
@@ -35,6 +42,7 @@ export const authOptions = {
           gender: user.gender,
           image: user.image,
           role: user.role,
+          // name: user.name
         };
       },
     }),
@@ -70,6 +78,9 @@ export const authOptions = {
         token.gender = user.gender;
         token.image = user.image;
         token.role = user.role;
+      }
+      if (token.email) {
+          token.role = await getUserRole(token.email);
       }
       return token;
     },

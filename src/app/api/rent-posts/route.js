@@ -1,4 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
+import { NextResponse } from 'next/server';
 
 let rentPostsCache = null;
 let rentPostsCacheTimestamp = 0;
@@ -7,61 +8,53 @@ let featuredCacheTimestamp = 0;
 const CACHE_TTL = 60 * 1000;
 
 export async function GET(req) {
-  let client;
-  try {
-    const { searchParams } = new URL(req.url);
-    const sort = searchParams.get("sort");
-    const featured = searchParams.get("featured");
+    let client;
+    try {
+        const { searchParams } = new URL(req.url);
+        const searchQuery = searchParams.get("search");
 
     const dbConn = await dbConnect('rentPosts');
     client = dbConn.client;
 
-    // Handle featured filter
-    if (featured === "true") {
-      if (featuredCache && Date.now() - featuredCacheTimestamp < CACHE_TTL) {
+        // Check if a search query exists in the URL
+        if (searchQuery) {
+            // If a search query is present, we bypass the cache
+            // and perform a new, specific database query.
+            const searchRegex = new RegExp(searchQuery, 'i'); // 'i' for case-insensitive
+            const query = {
+                $or: [
+                    // Search in the 'title' and 'category' fields
+                    { title: { $regex: searchRegex } }, 
+                    { category: { $regex: searchRegex } }, 
+                ],
+            };
+            const data = await dbConn.collection.find(query).toArray();
+            client.close();
+            return new Response(JSON.stringify(data), { status: 200 });
+        }
+        
+        // If there is no search query, proceed with the caching logic
+        if (rentPostsCache && Date.now() - rentPostsCacheTimestamp < CACHE_TTL) {
+            return new Response(JSON.stringify(rentPostsCache), { status: 200 });
+        }
+        
+        // Fetch all data from the database
+        const data = await dbConn.collection.find({}).toArray();
         client.close();
-        return new Response(JSON.stringify(featuredCache), { status: 200 });
-      }
 
-      const data = await dbConn.collection.find({ featured: true }).toArray();
-      client.close();
+        // Populate the cache with the full list
+        rentPostsCache = data;
+        rentPostsCacheTimestamp = Date.now();
 
-      featuredCache = data;
-      featuredCacheTimestamp = Date.now();
-
-      return new Response(JSON.stringify(data), { status: 200 });
+        return new Response(JSON.stringify(data), { status: 200 });
+    } catch (error) {
+        if (client) client.close();
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
-
-    // --- CHANGE START: Add sorting by rentalCount and rating --- (unchanged)
-    if (sort === "rentalCount_desc") {
-      const data = await dbConn.collection.find({}).sort({ rentalCount: -1 }).toArray();
-      client.close();
-      return new Response(JSON.stringify(data), { status: 200 });
-    }
-    if (sort === "rating_desc") {
-      const data = await dbConn.collection.find({}).sort({ rating: -1 }).toArray();
-      client.close();
-      return new Response(JSON.stringify(data), { status: 200 });
-    }
-    // --- CHANGE END ---
-
-    if (rentPostsCache && Date.now() - rentPostsCacheTimestamp < CACHE_TTL) {
-      client.close();
-      return new Response(JSON.stringify(rentPostsCache), { status: 200 });
-    }
-
-    const data = await dbConn.collection.find({}).toArray();
-    client.close();
-
-    rentPostsCache = data;
-    rentPostsCacheTimestamp = Date.now();
-
-    return new Response(JSON.stringify(data), { status: 200 });
-  } catch (error) {
-    if (client) client.close();
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
 }
+
+
+
 
 export async function POST(request) {
   let client;

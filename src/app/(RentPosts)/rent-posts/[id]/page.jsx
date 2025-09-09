@@ -1,8 +1,11 @@
+"use client"
 import React from "react";
 import AIInsights from "./AIInsights";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 function formatDate(dateStr) {
   const date = new Date(dateStr);
@@ -21,16 +24,42 @@ async function getRentPost(id) {
   return post;
 }
 
-const DetailPage = async (props) => {
-  const params = typeof props.params?.then === "function" ? await props.params : props.params;
-  const post = await getRentPost(params.id);
+const DetailPage = (props) => {
+  const params = props.params;
+  const [post, setPost] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => {
+    (async () => {
+      const awaitedParams = typeof params?.then === "function" ? await params : params;
+      const data = await getRentPost(awaitedParams.id);
+      setPost(data);
+      setLoading(false);
+    })();
+  }, [params]);
+
+  // Client-side session and router
+  const { data: session } = useSession();
+  const router = useRouter();
+  const handleBookNow = (e) => {
+    e.preventDefault();
+    if (!post) return; // Prevent action if post is not loaded
+    if (!session) {
+      const callbackUrl = `/checkout/${post.id}`;
+      router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+    } else {
+      router.push(`/checkout/${post.id}`);
+    }
+  };
+
+  if (loading) return <div className="w-full flex justify-center items-center py-20"><span className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></span></div>;
   if (!post) return notFound();
+
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col my-10">
+    <div className="min-h-screen w-full bg-base-100 text-base-content flex flex-col my-10">
       <main className="w-full mx-auto px-2 sm:px-6 py-8 flex flex-col md:flex-row gap-10">
         {/* Left: Image */}
         <div className="md:w-7/12 w-full flex flex-col items-center justify-center gap-4">
-          <div className="w-full aspect-video rounded-2xl shadow-lg overflow-hidden flex items-center justify-center bg-gray-100">
+          <div className="w-full aspect-video rounded-2xl shadow-lg overflow-hidden flex items-center justify-center bg-base-200">
             <img
               src={post.imageUrl}
               alt={post.title}
@@ -41,17 +70,17 @@ const DetailPage = async (props) => {
         </div>
         {/* Right: Details */}
         <div className="md:w-5/12 w-full flex flex-col gap-5 justify-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1 leading-tight">
+          <h1 className="text-3xl font-bold text-base-content mb-1 leading-tight">
             {post.title}
           </h1>
-          <p className="text-gray-700 mb-2 text-base leading-relaxed">
+          <p className="text-base-content mb-2 text-base leading-relaxed">
             {post.description}
           </p>
-          <div className="bg-gray-50 rounded-xl p-4 mb-2">
-            <div className="font-semibold text-gray-800 mb-2">Information</div>
+          <div className="bg-base-200 rounded-xl p-4 mb-2">
+            <div className="font-semibold text-base-content mb-2">Information</div>
             <div className="flex justify-between py-1 text-sm">
               <span>Price</span>
-              <span className="font-bold text-gray-900">
+              <span className="font-bold text-base-content">
                 ৳{typeof post.rentPrice === "number"
                   ? post.rentPrice.toLocaleString()
                   : Number(post.rentPrice)
@@ -69,22 +98,27 @@ const DetailPage = async (props) => {
             </div>
             <div className="flex justify-between py-1 text-sm">
               <span>Location</span>
-              <span className="font-bold text-gray-900">{post.location}</span>
+              <span className="font-bold text-base-content">{post.location}</span>
             </div>
           </div>
-          <div className="bg-gray-50 rounded-xl p-4 mb-2">
-            <div className="font-semibold text-gray-800 mb-2">Contact</div>
+          <div className="bg-base-200 rounded-xl p-4 mb-2">
+            <div className="font-semibold text-base-content mb-2">Contact</div>
             <div className="flex justify-between py-1 text-sm">
               <span>Owner</span>
-              <span className="font-bold text-gray-900">{post.ownerName}</span>
+              <Link
+                href={`/owner/${post.ownerId}`}
+                className="font-bold text-gray-900 hover:text-blue-600 hover:underline transition"
+              >
+                {post.ownerName}
+              </Link>
             </div>
             <div className="flex justify-between py-1 text-sm">
               <span>Email</span>
-              <span className="font-bold text-gray-900">{post.email}</span>
+              <span className="font-bold text-base-content">{post.email}</span>
             </div>
             <div className="flex justify-between py-1 text-sm">
               <span>Contact</span>
-              <span className="font-bold text-gray-900">
+              <span className="font-bold text-base-content">
                 {post.contactNumber}
               </span>
             </div>
@@ -92,13 +126,13 @@ const DetailPage = async (props) => {
         </div>
       </main>
       {/* AI Insights full width under image */}
-  <AIInsights post={post} />
+      <AIInsights post={post} />
       {/* Map Section */}
       <section className="w-full mx-auto px-2 sm:px-6 mt-8 flex flex-col items-center">
-        <div className="mb-2 text-lg font-semibold text-gray-800 self-start">
+        <div className="mb-2 text-lg font-semibold text-base-content self-start">
           Location Map
         </div>
-        <div className="w-full h-64 md:h-80 rounded-2xl overflow-hidden shadow-lg">
+        <div className="w-full h-64 md:h-80 rounded-2xl overflow-hidden shadow-lg bg-base-200">
           <iframe
             title="Google Map"
             width="100%"
@@ -112,12 +146,13 @@ const DetailPage = async (props) => {
           ></iframe>
         </div>
         <div className="flex gap-4 mt-8">
-          <Link href={`/checkout/${post.id}`}>
-            <button className="bg-blue-600 text-white px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition">
-              Book Now
-            </button>
-          </Link>
-          <button className=" bg-gray-200 px-5 text-gray-800 font-semibold py-3 rounded-xl text-lg hover:bg-gray-300 transition">
+          <button
+            className="bg-blue-600 text-base-content px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition"
+            onClick={handleBookNow}
+          >
+            Book Now
+          </button>
+          <button className="bg-base-200 px-5 text-base-content font-semibold py-3 rounded-xl text-lg hover:bg-base-300 transition">
             Contact Host
           </button>
         </div>
