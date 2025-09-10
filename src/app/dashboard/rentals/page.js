@@ -12,6 +12,7 @@ import {
 } from '@/app/components/Table';
 import { useToast } from '@/app/components/useToast';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 export default function ManageRentals() {
@@ -21,10 +22,8 @@ export default function ManageRentals() {
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
 
     const fetchRentals = async () => {
-        setLoading(true);
         try {
             const url = new URL(
                 `${process.env.NEXT_PUBLIC_BASE_URL}/api/rent-posts`,
@@ -44,9 +43,7 @@ export default function ManageRentals() {
                 description: 'Failed to load rentals',
                 variant: 'destructive',
             });
-        } finally {
-            setLoading(false);
-        }
+        } 
     };
 
     useEffect(() => {
@@ -108,19 +105,16 @@ export default function ManageRentals() {
         return <div className="text-center p-6">Access Denied</div>;
     }
 
-    if (loading) {
-        return <div className="text-center p-6">Loading Rentals...</div>;
-    }
-
+    console.log(rentals)
     return (
         <div className="container mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-4">
+            <h1 className="text-2xl font-bold mb-4 text-base-200">
                 Custom Rentals Management
             </h1>
 
-            <div className="mb-4">
+            <div className="mb-4 text-base-100">
                 <Input
-                    placeholder="Search by title or email..."
+                    placeholder="Search by title..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="max-w-md"
@@ -128,7 +122,7 @@ export default function ManageRentals() {
             </div>
 
             {/* Table Wrapper */}
-            <div className="overflow-x-auto border rounded-lg shadow-sm bg-white">
+            {/* <div className="overflow-x-auto border rounded-lg shadow-sm bg-white">
                 <Table className="min-w-[700px]">
                     <TableHeader className="sticky top-0 bg-gray-100 z-10 shadow">
                         <TableRow>
@@ -186,6 +180,79 @@ export default function ManageRentals() {
                         ))}
                     </TableBody>
                 </Table>
+            </div> */}
+
+            <div className="overflow-x-auto">
+                <table className="table">
+                    {/* head */}
+                    <thead>
+                        <tr className="text-base-200">
+                            <th>Title & Category</th>
+                            <th>User Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rentals.map((rental) => (
+                            <tr className="text-base-100" key={rental._id}>
+                                <td>
+                                    <div className="flex items-center gap-3">
+                                        <div className="avatar">
+                                            <div className="mask mask-squircle h-12 w-12">
+                                                <Image
+                                                    src={rental.imageUrl.replace(
+                                                        'i.ibb.co.com',
+                                                        'i.ibb.co',
+                                                    )}
+                                                    alt={rental.title}
+                                                    width={100}
+                                                    height={100}
+                                                ></Image>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="font-bold">
+                                                {rental.title}
+                                            </div>
+                                            <div className="text-sm opacity-50">
+                                                {rental.category}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{rental.email}</td>
+                                <td>{rental.status || 'pending'}</td>
+                                <td className='flex gap-3'>
+                                    <button
+                                        className="btn btn-ghost btn-xs btn-outline"
+                                        onClick={() =>
+                                            handleAction(rental._id, 'approved')
+                                        }
+                                        disabled={rental.status === 'approved'}
+                                    >
+                                        Accept
+                                    </button>
+                                    <button
+                                        className="btn btn-ghost btn-outline btn-xs"
+                                        onClick={() =>
+                                            handleAction(rental._id, 'rejected')
+                                        }
+                                        disabled={rental.status === 'rejected'}
+                                    >
+                                        Reject
+                                    </button>
+                                    <button
+                                        className="btn btn-ghost btn-outline btn-xs"
+                                        onClick={() => handleDelete(rental._id)}
+                                    >
+                                        🗑 Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
 
             <div className="flex justify-between mt-4 items-center">
