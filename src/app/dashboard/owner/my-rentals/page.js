@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Image from "next/image";
 
 
 export default function MyProducts() {
@@ -23,9 +24,11 @@ export default function MyProducts() {
         return <p className="text-center text-red-600">Please login first.</p>;
     }
 
-  useEffect(() => {
+useEffect(() => {
+  if (posts.length > 0) {
     toast.success('Your products loaded!');
-  }, []);
+  }
+}, [posts]);
 
   const handleAddProduct = () => {
     // Replace with API call or modal form for adding product
@@ -66,11 +69,14 @@ export default function MyProducts() {
                       className="card bg-base-200 shadow-md"
                   >
                       <figure>
-                          <img
-                              src={product.imageUrl}
-                              alt={product.ownerName}
-                              className="h-48 w-full object-cover"
-                          />
+                          <Image
+  src={product.imageUrl || "/placeholder.jpg"}
+  alt={product.ownerName}
+  width={500}
+  height={300}
+  className="h-48 w-full object-cover"
+/>
+
                       </figure>
                       <div className="card-body">
                           <h3 className="card-title">{product.title}</h3>

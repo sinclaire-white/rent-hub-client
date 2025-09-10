@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, memo } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText as GSAPSplitText } from "gsap/SplitText";
@@ -26,10 +26,12 @@ const SplitText = ({
   const scrollTriggerRef = useRef(null);
 
   useEffect(() => {
+    // Prevent re-animation if already completed
+    if (animationCompletedRef.current) return;
+
     if (typeof window === "undefined" || !ref.current || !text) return;
 
     const el = ref.current;
-    
     animationCompletedRef.current = false;
 
     const absoluteLines = splitType === "lines";
@@ -55,9 +57,6 @@ const SplitText = ({
       case "words":
         targets = splitter.words;
         break;
-      case "chars":
-        targets = splitter.chars;
-        break;
       default:
         targets = splitter.chars;
     }
@@ -76,7 +75,10 @@ const SplitText = ({
     const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin);
     const marginValue = marginMatch ? parseFloat(marginMatch[1]) : 0;
     const marginUnit = marginMatch ? (marginMatch[2] || "px") : "px";
-    const sign = marginValue < 0 ? `-=${Math.abs(marginValue)}${marginUnit}` : `+=${marginValue}${marginUnit}`;
+    const sign =
+      marginValue < 0
+        ? `-=${Math.abs(marginValue)}${marginUnit}`
+        : `+=${marginValue}${marginUnit}`;
     const start = `top ${startPct}%${sign}`;
 
     const tl = gsap.timeline({
@@ -91,7 +93,7 @@ const SplitText = ({
       },
       smoothChildTiming: true,
       onComplete: () => {
-        animationCompletedRef.current = true;
+        animationCompletedRef.current = true; // mark as completed
         gsap.set(targets, {
           ...to,
           clearProps: "willChange",
@@ -117,9 +119,7 @@ const SplitText = ({
         scrollTriggerRef.current = null;
       }
       gsap.killTweensOf(targets);
-      if (splitter) {
-        splitter.revert();
-      }
+      if (splitter) splitter.revert();
     };
   }, [
     text,
@@ -148,4 +148,5 @@ const SplitText = ({
   );
 };
 
-export default SplitText;
+//  Memoize so it doesn't re-render unless props change
+export default memo(SplitText);

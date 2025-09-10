@@ -24,7 +24,7 @@ export default function ViewAllListings() {
           </div>
 
           <h2 className="text-3xl font-bold md:text-4xl text-base-content">
-            Haven't Found Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Perfect Listing</span> Yet?
+            Haven&apos;t Found Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Perfect Listing</span> Yet?
           </h2>
           <p className="text-lg opacity-80 max-w-2xl mx-auto">
             Explore our vast collection of thousands of unique listings. From everyday essentials to extraordinary experiences, find exactly what you're looking for.

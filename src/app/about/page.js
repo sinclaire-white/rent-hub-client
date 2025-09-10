@@ -9,10 +9,10 @@ export default function AboutPage() {
       {/* Hero Section */}
       <div className="max-w-4xl mx-auto mb-16 text-center">
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-base-content">
-          More Than Just Rentals. It's a World of Possibilities.
+          More Than Just Rentals. It is a World of Possibilities.
         </h1>
         <p className="max-w-2xl mx-auto mt-4 text-lg text-base-content/80">
-          We're building a community where everything is shareable. Our mission is to connect individuals and businesses with the assets they need, when they need them, through a secure, intelligent, and diverse platform.
+          We are building a community where everything is shareable. Our mission is to connect individuals and businesses with the assets they need, when they need them, through a secure, intelligent, and diverse platform.
         </p>
       </div>
 

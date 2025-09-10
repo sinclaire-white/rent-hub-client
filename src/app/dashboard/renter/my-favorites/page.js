@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { FaStar } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-
+import Image from "next/image";
 
 export default function MyFavorites() {
   const { data: session } = useSession();
@@ -88,11 +88,13 @@ export default function MyFavorites() {
             return (
               <div key={post._id} className="relative flex flex-col bg-base-100 text-base-content rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-hidden mx-auto min-h-[420px] max-h-[420px] min-w-[300px] max-w-[300px]">
                 <Link href={`/rent-posts/${post._id}`} className="no-underline text-inherit h-full flex flex-col">
-                  <img
-                    src={post.imageUrl}
-                    alt={post.title}
-                    className="w-full h-36 object-cover rounded-t-xl"
-                  />
+                  <Image
+  src={post.imageUrl || "/placeholder.jpg"}
+  alt={post.title}
+  width={400}
+  height={250}
+  className="w-full h-36 object-cover rounded-t-xl"
+/>
                   <div className="flex flex-row gap-1 px-3 pt-2">
                     <span className="bg-base-200 text-base-content text-xs font-semibold px-2 py-1 rounded-lg">
                       {post.category}

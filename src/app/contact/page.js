@@ -42,7 +42,7 @@ export default function ContactPage() {
           {/* Contact Information Section */}
           <div className="flex flex-col justify-center">
             <p className="mb-6 text-lg text-base-content/80">
-              Have a question, feedback, or need support? We're here to help. Reach out to us through the form or the contact information below.
+              Have a question, feedback, or need support? We&apos;re here to help. Reach out to us through the form or the contact information below.
             </p>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
