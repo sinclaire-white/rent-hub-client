@@ -35,6 +35,8 @@ export default function MyFavorites() {
         setLoading(false);
         return;
       }
+
+    
       // Fetch product details for each bookmarked ID
       const productList = await Promise.all(
         bookmarks.map(async (id) => {
@@ -49,6 +51,8 @@ export default function MyFavorites() {
     }
     fetchBookmarkedProducts();
   }, [session]);
+
+  console.log(products)
 
   const handleRemove = async (id) => {
     // Remove bookmark via PATCH
