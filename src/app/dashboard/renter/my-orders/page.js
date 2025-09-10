@@ -1,11 +1,9 @@
-'use client'
+'use client';
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
-// Mock data (replace with API call)
 const mockOrders = [
     {
         id: 1,
@@ -16,81 +14,126 @@ const mockOrders = [
     },
     {
         id: 2,
-        product: 'Phone',
-        price: 15000,
+        product: 'Camera',
+        price: 12000,
         status: 'Pending',
-        date: '2025-09-01',
-    },
-    {
-        id: 3,
-        product: 'House',
-        price: 5000000,
-        status: 'Processing',
-        date: '2025-09-05',
+        date: '2025-08-10',
     },
 ];
 
 export default function MyOrders() {
-
     const { data: session } = useSession();
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
-        if (session?.user?.email) {
-            fetch(`/api/bookings?email=${session.user.email}`)
-                .then((res) => res.json())
-                .then((data) => setOrders(data))
-                .catch((err) => console.error('Fetch error:', err));
-        }
-    }, [session?.user?.email]);
-
-    console.log(orders)
+        setOrders(mockOrders); // replace with API call if needed
+    }, []);
 
     if (!session) {
         return (
-            <p className="text-center text-red-500">
+            <p className="text-center text-red-500 mt-10">
                 Please login to see your orders.
             </p>
         );
     }
 
-    // useEffect(() => {
-    //     toast.success('Your orders loaded!');
-    // }, []);
-
     return (
-        <div className="container mx-auto text-gray-800 p-4">
+        <div className="bg-base-100 text-base-content min-h-screen p-4 md:p-6 lg:p-8">
             <motion.h2
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="text-2xl font-semibold mb-6"
+                className="text-2xl md:text-3xl font-semibold mb-6 text-center md:text-left"
             >
                 My Orders
             </motion.h2>
-            <div className="overflow-x-auto">
-                <table className="table w-full">
-                    <thead>
-                        <tr className='text-black'>
-                            <th>Order ID</th>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+
+            {orders.length > 0 ? (
+                <>
+                    {/* Desktop Table */}
+                    <div className="hidden md:block overflow-x-auto rounded-lg shadow-md bg-white">
+                        <table className="table-auto w-full min-w-[600px]">
+                            <thead className="">
+                                <tr className="text-gray-800">
+                                    <th className="px-4 py-2 text-left">
+                                        Order ID
+                                    </th>
+                                    <th className="px-4 py-2 text-left">
+                                        Product
+                                    </th>
+                                    <th className="px-4 py-2 text-left">
+                                        Price
+                                    </th>
+                                    <th className="px-4 py-2 text-left">
+                                        Status
+                                    </th>
+                                    <th className="px-4 py-2 text-left">
+                                        Date
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {orders.map((order) => (
+                                    <motion.tr
+                                        key={order.id}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="border-b text-gray-700 hover:bg-gray-50"
+                                    >
+                                        <td className="px-4 py-2">
+                                            {order.id}
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            {order.product}
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            {order.price} BDT
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <span
+                                                className={`badge ${
+                                                    order.status === 'Delivered'
+                                                        ? 'badge-success'
+                                                        : order.status ===
+                                                          'Pending'
+                                                        ? 'badge-warning'
+                                                        : 'badge-info'
+                                                }`}
+                                            >
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            {order.date}
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card Layout */}
+                    <div className="md:hidden space-y-4">
                         {orders.map((order) => (
-                            <motion.tr
+                            <motion.div
                                 key={order.id}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3 }}
+                                className="bg-white text-gray-700 rounded-lg shadow p-4"
                             >
-                                <td>{order.id}</td>
-                                <td>{order.product}</td>
-                                <td>{order.price} BDT</td>
-                                <td>
+                                <p>
+                                    <strong>Order ID:</strong> {order.id}
+                                </p>
+                                <p>
+                                    <strong>Product:</strong> {order.product}
+                                </p>
+                                <p>
+                                    <strong>Price:</strong> {order.price} BDT
+                                </p>
+                                <p>
+                                    <strong>Status:</strong>{' '}
                                     <span
                                         className={`badge ${
                                             order.status === 'Delivered'
@@ -102,15 +145,16 @@ export default function MyOrders() {
                                     >
                                         {order.status}
                                     </span>
-                                </td>
-                                <td>{order.date}</td>
-                            </motion.tr>
+                                </p>
+                                <p>
+                                    <strong>Date:</strong> {order.date}
+                                </p>
+                            </motion.div>
                         ))}
-                    </tbody>
-                </table>
-            </div>
-            {orders.length === 0 && (
-                <p className=" text-gray-500 mt-4 h-[500px] flex justify-center items-center">
+                    </div>
+                </>
+            ) : (
+                <p className="text-gray-500 mt-4 h-[300px] flex justify-center items-center">
                     No orders found.
                 </p>
             )}

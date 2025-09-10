@@ -19,6 +19,12 @@ export default function DashboardHome() {
     const [rentals, setRentals] = useState([]);
     const [orders, setOrders] = useState([]);
     const [chartData, setChartData] = useState([]);
+
+    // Set role from session
+    useEffect(() => {
+        if (session?.user?.role) setRole(session.user.role);
+    }, [session]);
+
     // Fetch users (admin only)
     useEffect(() => {
         if (session?.user?.role !== 'admin') return;
@@ -52,17 +58,19 @@ export default function DashboardHome() {
                 const data = await res.json();
                 setRentals(data);
 
+                // Stats calculation using rentPrice
                 const totalRentals = data.length;
                 const totalUsers = new Set(data.map((r) => r.email)).size;
                 const avgPrice =
-                    data.reduce((acc, r) => acc + (r.price || 0), 0) /
+                    data.reduce((acc, r) => acc + (r.rentPrice || 0), 0) /
                     (data.length || 1);
 
                 setStats({ totalRentals, totalUsers, avgPrice });
 
+                // Chart data
                 const chartData = data.map((r) => ({
-                    name: r.title,
-                    value: r.price || 0,
+                    name: r.title || 'No Title',
+                    value: r.rentPrice || 0,
                 }));
                 setChartData(chartData);
             } catch (error) {
@@ -76,25 +84,32 @@ export default function DashboardHome() {
 
     // Fetch orders (user only)
     useEffect(() => {
-        if (session?.user?.email) {
-            fetch(`/api/bookings?email=${session.user.email}`)
-                .then((res) => {
-                    if (!res.ok) throw new Error('Failed to fetch orders');
-                    return res.json();
-                })
-                .then((data) => setOrders(data))
-                .catch((err) => {
-                    console.error('Fetch error:', err);
-                    toast.error('Failed to load orders');
-                });
-        }
+        if (!session?.user?.email) return;
+
+        const fetchOrders = async () => {
+            try {
+                const res = await fetch(
+                    `/api/bookings?email=${session.user.email}`,
+                );
+                if (!res.ok) throw new Error('Failed to fetch orders');
+                const data = await res.json();
+                setOrders(data);
+            } catch (err) {
+                console.error('Fetch error:', err);
+                toast.error('Failed to load orders');
+            }
+        };
+
+        fetchOrders();
     }, [session?.user?.email]);
 
-    useEffect(() => {
-        if (session?.user?.role) setRole(session.user.role);
-    }, [session]);
-
-    const rentPrice = rentals.map(rental => rental.rentPrice);
+    if (!session) {
+        return (
+            <div className="text-center p-6 bg-base-100 text-base-content">
+                Access Denied. Please sign in.
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -107,18 +122,14 @@ export default function DashboardHome() {
                     color="bg-green-500"
                 />
                 <StatCard
-                    title="Average Price"
+                    title="Average Rent Price"
                     value={`৳${stats.avgPrice.toFixed(2)}`}
                     color="bg-purple-500"
                 />
             </div>
-            <ChartCard
-                data={rentals.map((rental) => ({
-                    name: rental.title,
-                    value: rental.rentPrice,
-                }))}
-                title="Rental Prices"
-            />
+
+            {/* Rental Prices Chart */}
+            <ChartCard data={chartData} title="Rental Prices" />
         </div>
     );
 }

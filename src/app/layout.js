@@ -1,11 +1,8 @@
-import NextAuthProvider from '@/Providers/NextAuthProvider';
-import SessionProviderWrapper from '@/Providers/SessionProvider';
-import { ThemeProvider } from '@/Providers/ThemeProvider';
-import Footer from './components/Footer';
-import Navbar from './components/Navbar';
-import './globals.css';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
+import SessionProviderWrapper from '@/Providers/SessionProvider';
+import { getServerSession } from 'next-auth';
+import LayoutWrapper from './components/LayoutWrapper';
+import './globals.css';
 
 export const metadata = {
     title: 'Create Next App',
@@ -25,13 +22,9 @@ export default async function RootLayout({ children }) {
         : null;
     return (
         <html lang="en" suppressHydrationWarning>
-            <body
-            >
+            <body>
                 <SessionProviderWrapper session={safeSession}>
-                  
-                        <Navbar />
-                        <NextAuthProvider>{children}</NextAuthProvider>
-                        <Footer />
+                    <LayoutWrapper>{children}</LayoutWrapper>
                 </SessionProviderWrapper>
             </body>
         </html>

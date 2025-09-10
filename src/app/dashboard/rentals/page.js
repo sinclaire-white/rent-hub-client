@@ -53,7 +53,6 @@ export default function ManageRentals() {
         if (session?.user?.role === 'admin') fetchRentals();
     }, [session, page, search]);
 
-    // handleAction: Accept & Reject
     const handleAction = async (id, status) => {
         try {
             const res = await fetch(
@@ -68,7 +67,6 @@ export default function ManageRentals() {
 
             toast({ title: 'Success', description: `Rental ${status}` });
 
-            // Local state update for instant UI refresh
             setRentals((prev) =>
                 prev.map((r) => (r._id === id ? { ...r, status } : r)),
             );
@@ -82,19 +80,19 @@ export default function ManageRentals() {
         }
     };
 
-    // handleDelete: Delete only
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to delete this rental?')) return;
         try {
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_BASE_URL}/api/rent-posts/${id}`,
-                { method: 'DELETE' },
+                {
+                    method: 'DELETE',
+                },
             );
             if (!res.ok) throw new Error('Failed to delete rental');
 
             toast({ title: 'Success', description: 'Rental deleted' });
 
-            // Remove deleted item from local state instantly
             setRentals((prev) => prev.filter((r) => r._id !== id));
         } catch (error) {
             console.error('Error deleting rental:', error);
@@ -129,56 +127,68 @@ export default function ManageRentals() {
                 />
             </div>
 
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Title</TableHead>
-                        <TableHead>User Email</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {rentals.map((rental) => (
-                        <TableRow className="text-gray-700" key={rental._id}>
-                            <TableCell>{rental.title}</TableCell>
-                            <TableCell>{rental.email}</TableCell>
-                            <TableCell className="capitalize">
-                                {rental.status || 'pending'}
-                            </TableCell>
-                            <TableCell className="flex gap-2">
-                                <CustomButton
-                                    onClick={() =>
-                                        handleAction(rental._id, 'approved')
-                                    }
-                                    disabled={rental.status === 'approved'}
-                                >
-                                    Accept
-                                </CustomButton>
-
-                                <CustomButton
-                                    onClick={() =>
-                                        handleAction(rental._id, 'rejected')
-                                    }
-                                    disabled={rental.status === 'rejected'}
-                                    variant="outline"
-                                >
-                                    Reject
-                                </CustomButton>
-
-                                <CustomButton
-                                    onClick={() => handleDelete(rental._id)}
-                                    variant="destructive"
-                                >
-                                    🗑 Delete
-                                </CustomButton>
-                            </TableCell>
+            {/* Table Wrapper */}
+            <div className="overflow-x-auto border rounded-lg shadow-sm bg-white">
+                <Table className="min-w-[700px]">
+                    <TableHeader className="sticky top-0 bg-gray-100 z-10 shadow">
+                        <TableRow>
+                            <TableHead className="text-gray-700">
+                                Title
+                            </TableHead>
+                            <TableHead className="text-gray-700">
+                                User Email
+                            </TableHead>
+                            <TableHead className="text-gray-700">
+                                Status
+                            </TableHead>
+                            <TableHead className="text-gray-700">
+                                Actions
+                            </TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {rentals.map((rental) => (
+                            <TableRow
+                                key={rental._id}
+                                className="bg-white hover:bg-gray-50 text-gray-700"
+                            >
+                                <TableCell>{rental.title}</TableCell>
+                                <TableCell>{rental.email}</TableCell>
+                                <TableCell className="capitalize">
+                                    {rental.status || 'pending'}
+                                </TableCell>
+                                <TableCell className="flex flex-wrap gap-2">
+                                    <CustomButton
+                                        onClick={() =>
+                                            handleAction(rental._id, 'approved')
+                                        }
+                                        disabled={rental.status === 'approved'}
+                                    >
+                                        Accept
+                                    </CustomButton>
+                                    <CustomButton
+                                        onClick={() =>
+                                            handleAction(rental._id, 'rejected')
+                                        }
+                                        disabled={rental.status === 'rejected'}
+                                        variant="outline"
+                                    >
+                                        Reject
+                                    </CustomButton>
+                                    <CustomButton
+                                        onClick={() => handleDelete(rental._id)}
+                                        variant="destructive"
+                                    >
+                                        🗑 Delete
+                                    </CustomButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
 
-            <div className="flex justify-between mt-4">
+            <div className="flex justify-between mt-4 items-center">
                 <CustomButton
                     disabled={page === 1}
                     onClick={() => setPage(page - 1)}
