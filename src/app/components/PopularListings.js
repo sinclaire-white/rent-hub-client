@@ -7,18 +7,20 @@ import { motion } from "framer-motion";
 export default function PopularListings() {
   const { data: listings, isLoading, error } = useCachedFetch("/api/rent-posts?sort=rentalCount_desc");
 
+  const skeletonCount = 6; // Match the desired number of listings
+
   if (isLoading) {
     return (
       <section className="py-12 text-center">
-        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Popular Listings</h2>
-        <div className="grid max-w-7xl grid-cols-1 gap-6 mx-auto md:grid-cols-3">
-          {[...Array(3)].map((_, index) => (
+        <h2 className="mb-8 text-3xl font-bold text-base-content">Popular Listings</h2>
+        <div className="grid max-w-6xl grid-cols-1 gap-6 mx-auto md:grid-cols-3">
+          {[...Array(skeletonCount)].map((_, index) => (
             <div key={index} className="animate-pulse">
-              <div className="w-full h-48 bg-gray-200 rounded-lg dark:bg-gray-700"></div>
+              <div className="w-full h-48 bg-base-200 rounded-lg"></div>
               <div className="mt-4 space-y-2">
-                <div className="w-3/4 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
-                <div className="w-1/2 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
-                <div className="w-2/3 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
+                <div className="w-3/4 h-4 bg-base-200 rounded"></div>
+                <div className="w-1/2 h-4 bg-base-200 rounded"></div>
+                <div className="w-2/3 h-4 bg-base-200 rounded"></div>
               </div>
             </div>
           ))}
@@ -30,8 +32,8 @@ export default function PopularListings() {
   if (error) {
     return (
       <section className="py-12 text-center">
-        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Popular Listings</h2>
-        <div className="p-8 text-center text-error dark:text-error">
+        <h2 className="mb-8 text-3xl font-bold text-base-content">Popular Listings</h2>
+        <div className="p-8 text-center text-error">
           <p>Failed to load listings. Please try again later.</p>
         </div>
       </section>
@@ -41,8 +43,8 @@ export default function PopularListings() {
   if (listings.length === 0) {
     return (
       <section className="py-12 text-center">
-        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Popular Listings</h2>
-        <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+        <h2 className="mb-8 text-3xl font-bold text-base-content">Popular Listings</h2>
+        <div className="p-8 text-center text-base-content/50">
           <p>No popular listings are available at the moment.</p>
         </div>
       </section>
@@ -51,7 +53,7 @@ export default function PopularListings() {
 
   return (
     <section className="py-12">
-      <h2 className="mb-8 text-3xl font-bold text-center text-base-content dark:text-base-content">Popular Listings</h2>
+      <h2 className="mb-8 text-3xl font-bold text-center text-base-content">Popular Listings</h2>
       <motion.div
         className="grid max-w-6xl grid-cols-1 gap-6 mx-auto md:grid-cols-3"
         initial={{ opacity: 0 }}

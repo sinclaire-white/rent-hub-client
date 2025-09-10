@@ -20,7 +20,7 @@ export default function BecomeOwnerSection() {
   };
 
   return (
-    <section className="relative py-16 px-4 bg-base-100 dark:bg-base-200 overflow-hidden">
+    <section className="relative py-16 px-4 bg-base-100 overflow-hidden">
       {/* Background Decorative Element */}
       <div className="absolute inset-0 bg-[url('/path-to-subtle-pattern.png')] opacity-10"></div>
 
@@ -30,7 +30,7 @@ export default function BecomeOwnerSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-extrabold mb-6 text-base-content tracking-tight"
+          className="text-3xl font-bold md:text-4xl mb-6 text-base-content tracking-tight"
         >
           Start Earning <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Today!</span>
         </motion.h2>

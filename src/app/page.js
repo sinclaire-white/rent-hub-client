@@ -7,6 +7,7 @@ import Newsletter from "./components/Newsletter";
 import PopularListings from "./components/PopularListings";
 import TestimonialsSection from "./components/Testimonials";
 import TopRatedListings from "./components/TopRatedListings";
+import ViewAllListings from "./components/ViewAllListings";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
         <FeaturedListings></FeaturedListings>
         <PopularListings></PopularListings>
         <TopRatedListings></TopRatedListings>
+        <ViewAllListings></ViewAllListings>
         <BecomeOwnerSection></BecomeOwnerSection>
         <Newsletter></Newsletter>
         <TestimonialsSection></TestimonialsSection>
