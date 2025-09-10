@@ -1,13 +1,47 @@
+// `app/rent-posts/[id]/page.js`
 "use client"
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaStar, FaUser } from "react-icons/fa";
 import AIInsights from "./AIInsights";
-
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 
+// Skeleton component for the detail page
+const SkeletonDetailPage = () => (
+  <div className="min-h-screen w-full bg-base-100 text-base-content flex flex-col my-10 animate-pulse">
+    <main className="w-full mx-auto px-2 sm:px-6 py-8 flex flex-col md:flex-row gap-10">
+      {/* Image Skeleton */}
+      <div className="md:w-7/12 w-full flex flex-col items-center justify-center gap-4">
+        <div className="w-full aspect-video rounded-2xl shadow-lg overflow-hidden flex items-center justify-center bg-base-300 h-96"></div>
+      </div>
+      {/* Details Skeleton */}
+      <div className="md:w-5/12 w-full flex flex-col gap-5 justify-center">
+        <div className="w-full h-10 rounded-md bg-base-300"></div>
+        <div className="w-full h-24 rounded-md bg-base-300"></div>
+        <div className="bg-base-200 rounded-xl p-4 mb-2">
+          <div className="w-1/2 h-6 rounded-md bg-base-300 mb-2"></div>
+          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
+          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
+          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
+        </div>
+        <div className="bg-base-200 rounded-xl p-4 mb-2">
+          <div className="w-1/2 h-6 rounded-md bg-base-300 mb-2"></div>
+          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
+          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
+          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
+        </div>
+      </div>
+    </main>
+    <section className="w-full mx-auto px-2 sm:px-6 mt-8 flex flex-col items-center">
+      <div className="mb-2 w-1/4 h-6 rounded-md bg-base-300 self-start"></div>
+      <div className="w-full h-64 md:h-80 rounded-2xl overflow-hidden shadow-lg bg-base-300"></div>
+    </section>
+  </div>
+);
+
+// Helper function to format date
 function formatDate(dateStr) {
   const date = new Date(dateStr);
   const day = String(date.getDate()).padStart(2, "0");
@@ -17,33 +51,31 @@ function formatDate(dateStr) {
 }
 
 async function getRentPost(id) {
-  const res = await fetch(`http://localhost:3000/api/rent-posts/${id}`, { cache: "no-store" });
+  const res = await fetch(`/api/rent-posts/${id}`, { cache: "no-store" });
   if (!res.ok) return null;
   const post = await res.json();
-  // Convert MongoDB _id to id for compatibility if needed
   if (post && post._id) post.id = post._id;
   return post;
 }
 
-const DetailPage = (props) => {
-  const params = props.params;
-  const [post, setPost] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-  React.useEffect(() => {
-    (async () => {
-      const awaitedParams = typeof params?.then === "function" ? await params : params;
-      const data = await getRentPost(awaitedParams.id);
+const DetailPage = ({ params }) => {
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      const data = await getRentPost(params.id);
       setPost(data);
       setLoading(false);
-    })();
-  }, [params]);
+    };
+    fetchPost();
+  }, [params.id]);
 
-  // Client-side session and router
   const { data: session } = useSession();
   const router = useRouter();
   const handleBookNow = (e) => {
     e.preventDefault();
-    if (!post) return; // Prevent action if post is not loaded
+    if (!post) return;
     if (!session) {
       const callbackUrl = `/checkout/${post.id}`;
       router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
@@ -52,10 +84,9 @@ const DetailPage = (props) => {
     }
   };
 
-  if (loading) return <div className="w-full flex justify-center items-center py-20"><span className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></span></div>;
+  if (loading) return <SkeletonDetailPage />;
   if (!post) return notFound();
 
-  // Calculate average rating
   const avgRating = Array.isArray(post.ratings) && post.ratings.length > 0
     ? post.ratings.reduce((a, b) => a + b, 0) / post.ratings.length
     : 0;
@@ -64,18 +95,20 @@ const DetailPage = (props) => {
   return (
     <div className="min-h-screen w-full bg-base-100 text-base-content flex flex-col my-10">
       <main className="w-full mx-auto px-2 sm:px-6 py-8 flex flex-col md:flex-row gap-10">
-        {/* Left: Image */}
         <div className="md:w-7/12 w-full flex flex-col items-center justify-center gap-4">
           <div className="w-full aspect-video rounded-2xl shadow-lg overflow-hidden flex items-center justify-center bg-base-200">
-            <img
-              src={post.imageUrl}
-              alt={post.title}
-              className="w-full h-full object-contain rounded-2xl"
-              style={{ maxHeight: '480px', background: 'white' }}
-            />
+            {post.imageUrl && (
+              <Image
+                src={post.imageUrl}
+                alt={post.title}
+                width={800}
+                height={480}
+                className="w-full h-full object-contain rounded-2xl"
+                style={{ maxHeight: '480px', background: 'white' }}
+              />
+            )}
           </div>
         </div>
-        {/* Right: Details */}
         <div className="md:w-5/12 w-full flex flex-col gap-5 justify-center">
           <div className="flex items-center gap-4 mb-1">
             <h1 className="text-3xl font-bold text-base-content leading-tight">
@@ -147,7 +180,6 @@ const DetailPage = (props) => {
               </span>
             </div>
           </div>
-          {/* Review Section */}
           {Array.isArray(post.reviews) && post.reviews.length > 0 && (
             <div className="bg-base-200 rounded-xl p-4 mb-2">
               <div className="font-semibold text-base-content mb-2 text-lg">Reviews</div>
@@ -171,9 +203,7 @@ const DetailPage = (props) => {
           )}
         </div>
       </main>
-      {/* AI Insights full width under image */}
       <AIInsights post={post} />
-      {/* Map Section */}
       <section className="w-full mx-auto px-2 sm:px-6 mt-8 flex flex-col items-center">
         <div className="mb-2 text-lg font-semibold text-base-content self-start">
           Location Map
@@ -193,7 +223,7 @@ const DetailPage = (props) => {
         </div>
         <div className="flex gap-4 mt-8">
           <button
-            className="bg-blue-600 text-base-content px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition"
             onClick={handleBookNow}
           >
             Book Now

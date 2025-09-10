@@ -1,6 +1,6 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-const uri = process.env.MONGODB_URI; 
+const uri = process.env.MONGODB_URI;
 
 async function dbConnect(collectionName) {
   const client = new MongoClient(uri, {
@@ -11,11 +11,15 @@ async function dbConnect(collectionName) {
     },
   });
 
-  await client.connect();
-  const db = client.db(process.env.DB_NAME);
-  const collection = db.collection(collectionName);
-
-  return { client, collection };
+  try {
+    await client.connect();
+    const db = client.db(process.env.DB_NAME || "RentHub");
+    const collection = db.collection(collectionName);
+    return { client, collection };
+  } catch (err) {
+    console.error("Database connection error:", err);
+    throw err;
+  }
 }
 
 export default dbConnect;

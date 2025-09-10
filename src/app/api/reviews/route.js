@@ -1,6 +1,6 @@
 import clientPromise from "@/lib/mongodb";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions"; 
+import { authOptions } from "@/lib/authOptions";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -9,11 +9,22 @@ export async function GET(req) {
   const client = await clientPromise;
   const db = client.db("RentHub");
 
-  const reviews = await db
-    .collection("reviews")
-    .find({ ownerId })
-    .sort({ createdAt: -1 })
-    .toArray();
+  let reviews;
+  if (ownerId) {
+    reviews = await db
+      .collection("reviews")
+      .find({ ownerId })
+      .sort({ createdAt: -1 })
+      .toArray();
+  } else {
+    // Return top 5 most recent reviews if no ownerId is specified
+    reviews = await db
+      .collection("reviews")
+      .find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .toArray();
+  }
 
   return Response.json(reviews);
 }
