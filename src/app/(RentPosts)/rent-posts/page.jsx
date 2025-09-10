@@ -11,19 +11,19 @@ import { motion } from "framer-motion";
 // Skeleton component for a single post card
 const SkeletonPostCard = () => (
   <div className="shadow-xl card bg-base-100 dark:bg-base-200 animate-pulse">
-    <div className="w-full h-36 rounded-t-xl bg-base-300"></div>
+    <div className="w-full h-36 rounded-t-xl bg-base-200"></div>
     <div className="flex flex-row gap-1 px-3 pt-2">
-      <div className="w-1/4 h-5 rounded-lg bg-base-300"></div>
-      <div className="w-1/4 h-5 rounded-lg bg-base-300"></div>
+      <div className="w-1/4 h-5 rounded-lg bg-base-200"></div>
+      <div className="w-1/4 h-5 rounded-lg bg-base-200"></div>
     </div>
     <div className="flex flex-col gap-1 p-3">
-      <div className="w-1/2 h-4 bg-base-300 rounded-md"></div>
+      <div className="w-1/2 h-4 bg-base-200 rounded-md"></div>
       <div className="flex items-center gap-2 mb-0">
-        <div className="w-3/4 h-6 bg-base-300 rounded-md"></div>
-        <div className="w-1/4 h-5 bg-base-300 rounded-lg"></div>
+        <div className="w-3/4 h-6 bg-base-200 rounded-md"></div>
+        <div className="w-1/4 h-5 bg-base-200 rounded-lg"></div>
       </div>
-      <div className="w-full h-4 bg-base-300 rounded-md"></div>
-      <div className="w-full h-4 bg-base-300 rounded-md"></div>
+      <div className="w-full h-4 bg-base-200 rounded-md"></div>
+      <div className="w-full h-4 bg-base-200 rounded-md"></div>
     </div>
   </div>
 );
@@ -187,9 +187,6 @@ const RentPostsList = ({ posts, isLoggedIn }) => {
                       </div>
                     )}
                   </div>
-                  {/* <p className="text-xs text-base-content mb-1 leading-snug line-clamp-2 opacity-80">
-                    {post.description}
-                  </p> */}
                   <div className="flex items-center gap-2 mb-1">
                     <span
                       className={`badge badge-outline ${
@@ -239,6 +236,8 @@ const RentPostsPage = () => {
   const [categories, setCategories] = useState(["All"]);
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
+
+  const skeletonCount = 8; // Dynamic number of skeleton placeholders
 
   // Fetch posts based on category
   useEffect(() => {
@@ -316,11 +315,11 @@ const RentPostsPage = () => {
       }>
         {loading ? (
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-2 sm:px-3">
-            {Array.from({ length: 8 }).map((_, index) => <SkeletonPostCard key={index} />)}
+            {Array.from({ length: skeletonCount }).map((_, index) => <SkeletonPostCard key={index} />)}
           </div>
         ) : posts.length === 0 ? (
           <div className="w-full flex justify-center items-center py-20">
-            <span className="text-lg text-base-content font-semibold">No post to show for this category.</span>
+            <span className="text-lg text-base-content/50 font-semibold">No posts to show for this category.</span>
           </div>
         ) : (
           <RentPostsList posts={posts} isLoggedIn={isLoggedIn} />
