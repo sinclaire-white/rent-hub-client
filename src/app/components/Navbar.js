@@ -32,7 +32,7 @@ export default function Navbar() {
     { href: '/rent-posts', label: 'Listings' },
     { href: '/add-rent-posts', label: 'Give Rent' },
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/my-bookings', label: 'My Bookings' },
+    { href: '/dashboard/owner/my-rentals', label: 'My Bookings' },
   ];
 
   const navLinks = session ? loggedInRoutes : routes;
@@ -95,39 +95,33 @@ export default function Navbar() {
           </div>
 
           {session ? (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={handleLogout}
-              className="hidden text-white border-none sm:flex btn btn-sm bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+              className="hidden px-4 py-2 sm:flex items-center gap-2 rounded-3xl border-2 border-error shadow-[inset_0px_-2px_0px_1px_theme(colors.error)] group hover:bg-error transition duration-300 ease-in-out"
               aria-label="Log out"
             >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden lg:inline">Logout</span>
-            </motion.button>
+              <LogOut className="w-4 h-4 text-error group-hover:text-error-content" />
+              <span className="font-medium text-error group-hover:text-error-content">Logout</span>
+            </button>
           ) : (
             <>
               <Link href="/login" className="hidden sm:inline-flex">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="text-white border-none btn btn-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                <button
+                  className="px-4 py-2 flex items-center gap-2 rounded-3xl border-2 border-primary shadow-[inset_0px_-2px_0px_1px_theme(colors.primary)] group hover:bg-primary transition duration-300 ease-in-out"
                   aria-label="Log in"
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span className="hidden lg:inline">Login</span>
-                </motion.button>
+                  <LogIn className="w-4 h-4 text-primary group-hover:text-primary-content" />
+                  <span className="font-medium text-primary group-hover:text-primary-content">Login</span>
+                </button>
               </Link>
               <Link href="/register" className="hidden sm:inline-flex">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="text-white border-none btn btn-sm bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                <button
+                  className="px-4 py-2 flex items-center gap-2 rounded-3xl border-2 border-secondary shadow-[inset_0px_-2px_0px_1px_theme(colors.secondary)] group hover:bg-secondary transition duration-300 ease-in-out"
                   aria-label="Register"
                 >
-                  <UserPlus className="w-4 h-4" />
-                  <span className="hidden lg:inline">Register</span>
-                </motion.button>
+                  <UserPlus className="w-4 h-4 text-secondary group-hover:text-secondary-content" />
+                  <span className="font-medium text-secondary group-hover:text-secondary-content">Register</span>
+                </button>
               </Link>
             </>
           )}
@@ -183,10 +177,8 @@ export default function Navbar() {
                 <ThemeToggle />
               </div>
               {session ? (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full text-white border-none btn btn-sm bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                <button
+                  className="w-full btn btn-sm btn-error"
                   onClick={() => {
                     handleLogout();
                     setMobileOpen(false);
@@ -195,32 +187,28 @@ export default function Navbar() {
                 >
                   <LogOut className="w-4 h-4" />
                   Logout
-                </motion.button>
+                </button>
               ) : (
                 <>
                   <Link href="/login" className="w-full">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-full text-white border-none btn btn-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    <button
+                      className="w-full btn btn-sm btn-primary"
                       onClick={() => setMobileOpen(false)}
                       aria-label="Log in"
                     >
                       <LogIn className="w-4 h-4" />
                       Login
-                    </motion.button>
+                    </button>
                   </Link>
                   <Link href="/register" className="w-full">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-full text-white border-none btn btn-sm bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                    <button
+                      className="w-full btn btn-sm btn-secondary"
                       onClick={() => setMobileOpen(false)}
                       aria-label="Register"
                     >
                       <UserPlus className="w-4 h-4" />
                       Register
-                    </motion.button>
+                    </button>
                   </Link>
                 </>
               )}

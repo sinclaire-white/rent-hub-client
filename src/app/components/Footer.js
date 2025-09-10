@@ -14,7 +14,7 @@ export default function Footer() {
           <div>
             <h2 className="text-2xl font-bold mb-3">RentHub</h2>
             <p className="text-sm opacity-80 leading-relaxed">
-              Your trusted rental marketplace.  
+              Your trusted rental marketplace.
               Rent properties, vehicles, tools, and more — 
               all in one place with secure payments and AI-powered insights.
             </p>
@@ -31,15 +31,22 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 3 - Categories */}
+          {/* Column 3 - Categories (now hard-coded links) */}
           <div>
             <h3 className="font-semibold mb-3">Categories</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="#" className="link link-hover">Properties & Living</Link></li>
-              <li><Link href="#" className="link link-hover">Vehicles</Link></li>
-              <li><Link href="#" className="link link-hover">Land & Nature</Link></li>
-              <li><Link href="#" className="link link-hover">Events & Venues</Link></li>
-              
+              <li>
+                <Link href="/rent-posts?category=Properties%20%26%20Living" className="link link-hover">Properties & Living</Link>
+              </li>
+              <li>
+                <Link href="/rent-posts?category=Vehicles" className="link link-hover">Vehicles</Link>
+              </li>
+              <li>
+                <Link href="/rent-posts?category=Land%20%26%20Nature" className="link link-hover">Land & Nature</Link>
+              </li>
+              <li>
+                <Link href="/rent-posts?category=Events%20%26%20Venues" className="link link-hover">Events & Venues</Link>
+              </li>
             </ul>
           </div>
 
@@ -58,23 +65,23 @@ export default function Footer() {
             {/* Social Media inside contact */}
             <div className="flex gap-4 mt-4">
               <a href="https://www.facebook.com" target="_blank" rel="noreferrer"
-                 className="hover:text-blue-600 transition-colors">
+                  className="hover:text-primary transition-colors">
                 <Facebook size={20} />
               </a>
               <a href="https://www.twitter.com" target="_blank" rel="noreferrer"
-                 className="hover:text-sky-500 transition-colors">
+                  className="hover:text-primary transition-colors">
                 <Twitter size={20} />
               </a>
               <a href="https://www.instagram.com" target="_blank" rel="noreferrer"
-                 className="hover:text-pink-500 transition-colors">
+                  className="hover:text-primary transition-colors">
                 <Instagram size={20} />
               </a>
               <a href="https://www.linkedin.com" target="_blank" rel="noreferrer"
-                 className="hover:text-blue-700 transition-colors">
+                  className="hover:text-primary transition-colors">
                 <Linkedin size={20} />
               </a>
               <a href="https://www.youtube.com" target="_blank" rel="noreferrer"
-                 className="hover:text-red-600 transition-colors">
+                  className="hover:text-primary transition-colors">
                 <Youtube size={20} />
               </a>
             </div>
@@ -82,7 +89,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-base-300  text-center text-sm opacity-70">
+        <div className="border-t border-base-300 pt-6 mt-6 text-center text-sm opacity-70">
           © {new Date().getFullYear()} RentHub. All rights reserved.
         </div>
       </div>

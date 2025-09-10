@@ -1,22 +1,11 @@
 "use client";
 
 import { useCachedFetch } from "./hooks/useCachedFetch";
-import { useBookmarks } from "./hooks/useBookmarks";
 import ListingCard from "./ListingCard";
 import { motion } from "framer-motion";
-import { useState } from "react";
 
 export default function FeaturedListings() {
   const { data: listings, isLoading, error } = useCachedFetch("/api/rent-posts?featured=true");
-  const { bookmarks } = useBookmarks();
-  const [bookmarkState, setBookmarkState] = useState({});
-
-  const handleBookmarkToggle = (listingId, isBookmarked, bookmarkId) => {
-    setBookmarkState(prev => ({
-      ...prev,
-      [listingId]: { isBookmarked, bookmarkId },
-    }));
-  };
 
   if (isLoading) {
     return (
@@ -61,7 +50,6 @@ export default function FeaturedListings() {
   }
 
   return (
-
     <section className="py-12">
       <h2 className="mb-8 text-3xl font-bold text-center text-base-content dark:text-base-content">Featured Listings</h2>
       <motion.div
@@ -70,24 +58,16 @@ export default function FeaturedListings() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {listings.map(listing => {
-          const bookmark = bookmarks.find(b => b.listingId === listing._id) || {};
-          const isBookmarked = !!bookmark.id || bookmarkState[listing._id]?.isBookmarked || false;
-          const bookmarkId = bookmark.id || bookmarkState[listing._id]?.bookmarkId;
-          return (
-            <ListingCard
-              key={listing._id}
-              id={listing._id}
-              title={listing.title}
-              price={listing.rentPrice}
-              category={listing.category}
-              image={listing.imageUrl}
-              isBookmarked={isBookmarked}
-              bookmarkId={bookmarkId}
-              onBookmarkToggle={handleBookmarkToggle}
-            />
-          );
-        })}
+        {listings.map(listing => (
+          <ListingCard
+            key={listing._id}
+            id={listing._id}
+            title={listing.title}
+            price={listing.rentPrice}
+            category={listing.category}
+            image={listing.imageUrl}
+          />
+        ))}
       </motion.div>
     </section>
   );
