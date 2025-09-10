@@ -1,8 +1,12 @@
+"use client"
 import React from "react";
+import { FaStar, FaUser } from "react-icons/fa";
 import AIInsights from "./AIInsights";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 function formatDate(dateStr) {
   const date = new Date(dateStr);
@@ -21,10 +25,42 @@ async function getRentPost(id) {
   return post;
 }
 
-const DetailPage = async (props) => {
-  const params = typeof props.params?.then === "function" ? await props.params : props.params;
-  const post = await getRentPost(params.id);
+const DetailPage = (props) => {
+  const params = props.params;
+  const [post, setPost] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => {
+    (async () => {
+      const awaitedParams = typeof params?.then === "function" ? await params : params;
+      const data = await getRentPost(awaitedParams.id);
+      setPost(data);
+      setLoading(false);
+    })();
+  }, [params]);
+
+  // Client-side session and router
+  const { data: session } = useSession();
+  const router = useRouter();
+  const handleBookNow = (e) => {
+    e.preventDefault();
+    if (!post) return; // Prevent action if post is not loaded
+    if (!session) {
+      const callbackUrl = `/checkout/${post.id}`;
+      router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+    } else {
+      router.push(`/checkout/${post.id}`);
+    }
+  };
+
+  if (loading) return <div className="w-full flex justify-center items-center py-20"><span className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></span></div>;
   if (!post) return notFound();
+
+  // Calculate average rating
+  const avgRating = Array.isArray(post.ratings) && post.ratings.length > 0
+    ? post.ratings.reduce((a, b) => a + b, 0) / post.ratings.length
+    : 0;
+  const roundedRating = Math.round(avgRating * 10) / 10;
+
   return (
     <div className="min-h-screen w-full bg-base-100 text-base-content flex flex-col my-10">
       <main className="w-full mx-auto px-2 sm:px-6 py-8 flex flex-col md:flex-row gap-10">
@@ -41,9 +77,26 @@ const DetailPage = async (props) => {
         </div>
         {/* Right: Details */}
         <div className="md:w-5/12 w-full flex flex-col gap-5 justify-center">
-          <h1 className="text-3xl font-bold text-base-content mb-1 leading-tight">
-            {post.title}
-          </h1>
+          <div className="flex items-center gap-4 mb-1">
+            <h1 className="text-3xl font-bold text-base-content leading-tight">
+              {post.title}
+            </h1>
+            {avgRating > 0 && (
+              <div className="flex items-center gap-1 bg-base-200 px-3 py-1 rounded-lg">
+                <span>Rating: </span>
+                {[...Array(5)].map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < Math.round(avgRating)
+                        ? "text-yellow-400 text-lg"
+                        : "text-gray-300 text-lg"
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </div>
           <p className="text-base-content mb-2 text-base leading-relaxed">
             {post.description}
           </p>
@@ -94,6 +147,28 @@ const DetailPage = async (props) => {
               </span>
             </div>
           </div>
+          {/* Review Section */}
+          {Array.isArray(post.reviews) && post.reviews.length > 0 && (
+            <div className="bg-base-200 rounded-xl p-4 mb-2">
+              <div className="font-semibold text-base-content mb-2 text-lg">Reviews</div>
+              <div className="space-y-4">
+                {post.reviews.map((review, idx) => (
+                  <div key={idx} className="flex flex-col gap-2 bg-base-100 rounded-lg p-4 shadow">
+                    <div className="flex items-center gap-2">
+                      <FaUser className="text-blue-500" />
+                      <span className="font-bold text-base-content text-md">{review.name}</span>
+                      <div className="flex items-center gap-1">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <FaStar key={i} className="text-yellow-400 text-lg" />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-base-content text-sm italic mt-1 pl-7">{review.description}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
       {/* AI Insights full width under image */}
@@ -117,11 +192,12 @@ const DetailPage = async (props) => {
           ></iframe>
         </div>
         <div className="flex gap-4 mt-8">
-          <Link href={`/checkout/${post.id}`}>
-            <button className="bg-blue-600 text-base-content px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition">
-              Book Now
-            </button>
-          </Link>
+          <button
+            className="bg-blue-600 text-base-content px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition"
+            onClick={handleBookNow}
+          >
+            Book Now
+          </button>
           <button className="bg-base-200 px-5 text-base-content font-semibold py-3 rounded-xl text-lg hover:bg-base-300 transition">
             Contact Host
           </button>

@@ -24,13 +24,23 @@ const Page = ({ params }) => {
   const [bookedDates, setBookedDates] = useState([]);
 
   const [form, setForm] = useState({
-    name: "",
-    email: "",
+    name: session?.user?.name || "",
+    email: session?.user?.email || "",
     phone: "",
     startDate: "",
     endDate: "",
     advance: 0,
   });
+  // Pre-fill name and email when session changes
+  useEffect(() => {
+    if (session?.user) {
+      setForm((prev) => ({
+        ...prev,
+        name: session.user.name || prev.name,
+        email: session.user.email || prev.email,
+      }));
+    }
+  }, [session]);
 
   const [totalCost, setTotalCost] = useState(0);
   const [monthDiff, setMonthDiff] = useState(0);
@@ -115,7 +125,9 @@ const Page = ({ params }) => {
 
   const handlePayNow = async () => {
     if (!session) {
-      router.push("/login");
+      // Send current URL as callbackUrl to login page
+      const currentUrl = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/';
+      router.push(`/login?callbackUrl=${encodeURIComponent(currentUrl)}`);
     }
     else {
       if (!form.startDate || !form.endDate) {
@@ -187,7 +199,7 @@ const Page = ({ params }) => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto my-10 p-8 bg-white  rounded-2xl shadow-xl border-2">
+    <div className="max-w-5xl mx-auto my-10 p-8 bg-base-100  rounded-2xl shadow-xl border-2">
       <h2 className="text-3xl font-bold mb-6 text-center">Checkout: {post.title}</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -216,19 +228,21 @@ const Page = ({ params }) => {
               type="text"
               name="name"
               placeholder="Your Name"
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-100 text-gray-700 cursor-not-allowed"
               value={form.name}
               onChange={handleChange}
               required
+              disabled={!!form.name}
             />
             <input
               type="email"
               name="email"
               placeholder="Your Email"
-              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-100 text-gray-700 cursor-not-allowed"
               value={form.email}
               onChange={handleChange}
               required
+              disabled={!!form.email}
             />
             <input
               type="text"

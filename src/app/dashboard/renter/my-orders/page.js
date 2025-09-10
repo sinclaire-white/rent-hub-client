@@ -53,8 +53,8 @@ export default function MyOrders() {
                     {/* Desktop Table */}
                     <div className="hidden md:block overflow-x-auto rounded-lg shadow-md bg-white">
                         <table className="table-auto w-full min-w-[600px]">
-                            <thead className="">
-                                <tr className="text-gray-800">
+                            <thead className="bg-gray-100">
+                                <tr className="text-black">
                                     <th className="px-4 py-2 text-left">
                                         Order ID
                                     </th>
@@ -79,7 +79,7 @@ export default function MyOrders() {
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ duration: 0.3 }}
-                                        className="border-b text-gray-700 hover:bg-gray-50"
+                                        className="border-b hover:bg-gray-50"
                                     >
                                         <td className="px-4 py-2">
                                             {order.id}
@@ -121,7 +121,7 @@ export default function MyOrders() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3 }}
-                                className="bg-white text-gray-700 rounded-lg shadow p-4"
+                                className="bg-white rounded-lg shadow p-4"
                             >
                                 <p>
                                     <strong>Order ID:</strong> {order.id}
