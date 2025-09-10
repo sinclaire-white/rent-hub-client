@@ -10,7 +10,6 @@ export default function AdminSidebar() {
         { href: '/dashboard', label: 'Overview' },
         { href: '/dashboard/rentals', label: 'Manage Rentals' },
         { href: '/dashboard/users', label: 'Manage Users' },
-        { href: '/dashboard/analytics', label: 'Analytics' },
     ];
 
     return (

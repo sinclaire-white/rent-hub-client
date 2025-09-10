@@ -1,101 +1,125 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
-
-
+const mockOrders = [
+    {
+        id: 1,
+        product: 'Bike',
+        price: 25000,
+        status: 'Delivered',
+        date: '2025-08-15',
+    },
+    {
+        id: 2,
+        product: 'Camera',
+        price: 12000,
+        status: 'Pending',
+        date: '2025-08-10',
+    },
+];
 
 export default function MyOrders() {
     const { data: session } = useSession();
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
-        async function fetchBookings() {
-            if (!session?.user?.email) {
-                setOrders([]);
-                return;
-            }
-            try {
-                // Fetch all bookings for the user
-                const res = await fetch(`/api/bookings?email=${session.user.email}`);
-                if (!res.ok) {
-                    setOrders([]);
-                    return;
-                }
-                const data = await res.json();
-                setOrders(Array.isArray(data) ? data : []);
-            } catch {
-                setOrders([]);
-            }
-        }
-        fetchBookings();
-    }, [session]);
+        setOrders(mockOrders); // replace with API call if needed
+    }, []);
+
+     useEffect(() => {
+         if (session?.user?.email) {
+             fetch(`/api/bookings?email=${session.user.email}`)
+                 .then((res) => res.json())
+                 .then((data) => setOrders(data))
+                 .catch((err) => console.error('Fetch error:', err))
+                 
+         }
+     }, [session?.user?.email]);
+
 
     if (!session) {
         return (
-            <p className="text-center text-red-500">
+            <p className="text-center text-red-500 mt-10">
                 Please login to see your orders.
             </p>
         );
     }
 
-    // Helper to format date as '10th Jun 2025'
-    function formatDate(dateStr) {
-        if (!dateStr) return '-';
-        const date = new Date(dateStr);
-        const day = date.getDate();
-        const month = date.toLocaleString('en-US', { month: 'short' });
-        const year = date.getFullYear();
-        // Get ordinal suffix
-        const getOrdinal = (n) => {
-            if (n > 3 && n < 21) return 'th';
-            switch (n % 10) {
-                case 1: return 'st';
-                case 2: return 'nd';
-                case 3: return 'rd';
-                default: return 'th';
-            }
-        };
-        return `${day}${getOrdinal(day)} ${month} ${year}`;
-    }
-
     return (
-        <div className="bg-base-100 text-base-content min-h-screen">
+        <div className="bg-base-100 text-base-content min-h-screen p-4 md:p-6 lg:p-8">
             <motion.h2
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="text-2xl font-semibold mb-6"
+                className="text-2xl md:text-3xl font-semibold mb-6 text-center md:text-left"
             >
                 My Orders
             </motion.h2>
-            <div className="overflow-x-auto">
-                <table className="table w-full">
-                    <thead>
-                        <tr className='text-black'>
-                            <th>Serial</th>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orders.map((order, idx) => (
-                            <motion.tr
-                                key={order._id || order.id}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
+
+            {orders.length > 0 ? (
+                <>
+                    {/* Desktop Table */}
+                    <div className="hidden md:block overflow-x-auto rounded-lg shadow-md bg-white">
+                        <table className="table-auto w-full min-w-[600px]">
+                            <thead className="bg-gray-100">
+                                <tr className='text-black'>
+                                    
+                                    <th className="px-4 py-2 text-left">Title</th>
+                                    <th className="px-4 py-2 text-left">Category</th>
+                                    <th className="px-4 py-2 text-left">Price</th>
+                                    <th className="px-4 py-2 text-left">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {orders.map((order) => (
+                                    <motion.tr
+                                        key={order.id}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="border-b hover:bg-gray-50"
+                                    >
+                                        <td className="px-4 py-2">{order.title}</td>
+                                        <td className="px-4 py-2">{order.category}</td>
+                                        <td className="px-4 py-2">{order.rentPrice} BDT</td>
+                                        <td className="px-4 py-2">
+                                            <span
+                                                className={`badge ${
+                                                    order.status === 'Delivered'
+                                                        ? 'badge-success'
+                                                        : order.status === 'Pending'
+                                                        ? 'badge-warning'
+                                                        : 'badge-info'
+                                                }`}
+                                            >
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        
+                                    </motion.tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card Layout */}
+                    <div className="md:hidden space-y-4">
+                        {orders.map((order) => (
+                            <motion.div
+                                key={order.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3 }}
+                                className="bg-white rounded-lg shadow p-4"
                             >
-                                <td>{idx + 1}</td>
-                                <td>{order.itemTitle || order.category || '-'}</td>
-                                <td>{order.totalCost ? `${order.totalCost} BDT` : '-'}</td>
-                                <td>
+                                <p><strong>Order ID:</strong> {order.title}</p>
+                                <p><strong>Product:</strong> {order.category}</p>
+                                <p><strong>Price:</strong> {order.rentPrice} BDT</p>
+                                <p>
+                                    <strong>Status:</strong>{' '}
                                     <span
                                         className={`badge ${
                                             order.status === 'Delivered'
@@ -105,20 +129,23 @@ export default function MyOrders() {
                                                 : 'badge-info'
                                         }`}
                                     >
-                                        {order.status || 'Pending'}
+                                        {order.status}
                                     </span>
-                                </td>
-                                <td>{order.createdAt ? formatDate(order.createdAt) : '-'}</td>
-                            </motion.tr>
+                                </p>
+                                
+                            </motion.div>
                         ))}
-                    </tbody>
-                </table>
-            </div>
-            {orders.length === 0 && (
-                <p className="text-gray-500 mt-4 h-[500px] flex justify-center items-center">
+                    </div>
+                </>
+            ) : (
+                <p className="text-gray-500 mt-4 h-[300px] flex justify-center items-center">
                     No orders found.
                 </p>
             )}
         </div>
     );
 }
+
+
+
+

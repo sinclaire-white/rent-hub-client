@@ -6,10 +6,9 @@ import { usePathname } from 'next/navigation';
 export default function VendorSidebar() {
     const pathname = usePathname();
     const links = [
-        { href: '/dashboard', label: 'My Rentals and Add Rentals' },
+        { href: '/dashboard', label: 'Overview' },
         { href: '/dashboard/owner/my-rentals', label: 'My Rentals' },
         { href: `/add-rent-posts`, label: 'Add Rental' },
-        { href: '/dashboard/analytics', label: 'Analytics' },
     ];
 
     return (
