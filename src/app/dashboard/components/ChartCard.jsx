@@ -6,7 +6,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } fro
 export default function ChartCard({ data, title }) {
   return (
     <div className="bg-white rounded-2xl shadow p-4">
-      <h3 className="font-medium mb-3">{title}</h3>
+      <h3 className="font-medium mb-3 text-base-200">{title}</h3>
       {data && data.length ? (
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data}>

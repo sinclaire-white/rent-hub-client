@@ -37,7 +37,7 @@ export default function DashboardNavbar({ onMenuClick }) {
             </button>
 
             {/* Center: Dashboard title */}
-            <Link href="/" className="text-xl font-bold">
+            <Link href="/" className="text-xl text-base-200 font-bold">
                 RentHub
             </Link>
 

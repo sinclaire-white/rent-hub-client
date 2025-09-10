@@ -2,8 +2,8 @@
 
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 export default function ManageUsers() {
     const { data: session, update } = useSession();

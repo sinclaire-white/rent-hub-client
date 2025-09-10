@@ -4,6 +4,7 @@ import SessionProviderWrapper from '@/Providers/SessionProvider';
 import { getServerSession } from 'next-auth';
 import LayoutWrapper from './components/LayoutWrapper';
 import './globals.css';
+import { Toaster } from 'react-hot-toast';
 export const metadata = {
   title: "RentHub",
   description: "Rental platform for all kinds of assets",
@@ -25,6 +26,7 @@ export default async function RootLayout({ children }) {
             <body>
                 <SessionProviderWrapper session={safeSession}>
                     <LayoutWrapper>{children}</LayoutWrapper>
+                    <Toaster position="top-right" reverseOrder={false} />
                 </SessionProviderWrapper>
             </body>
         </html>

@@ -29,6 +29,17 @@ export default function MyOrders() {
         setOrders(mockOrders); // replace with API call if needed
     }, []);
 
+     useEffect(() => {
+         if (session?.user?.email) {
+             fetch(`/api/bookings?email=${session.user.email}`)
+                 .then((res) => res.json())
+                 .then((data) => setOrders(data))
+                 .catch((err) => console.error('Fetch error:', err))
+                 
+         }
+     }, [session?.user?.email]);
+
+
     if (!session) {
         return (
             <p className="text-center text-red-500 mt-10">
@@ -54,22 +65,12 @@ export default function MyOrders() {
                     <div className="hidden md:block overflow-x-auto rounded-lg shadow-md bg-white">
                         <table className="table-auto w-full min-w-[600px]">
                             <thead className="bg-gray-100">
-                                <tr className="text-black">
-                                    <th className="px-4 py-2 text-left">
-                                        Order ID
-                                    </th>
-                                    <th className="px-4 py-2 text-left">
-                                        Product
-                                    </th>
-                                    <th className="px-4 py-2 text-left">
-                                        Price
-                                    </th>
-                                    <th className="px-4 py-2 text-left">
-                                        Status
-                                    </th>
-                                    <th className="px-4 py-2 text-left">
-                                        Date
-                                    </th>
+                                <tr className='text-black'>
+                                    
+                                    <th className="px-4 py-2 text-left">Title</th>
+                                    <th className="px-4 py-2 text-left">Category</th>
+                                    <th className="px-4 py-2 text-left">Price</th>
+                                    <th className="px-4 py-2 text-left">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -81,22 +82,15 @@ export default function MyOrders() {
                                         transition={{ duration: 0.3 }}
                                         className="border-b hover:bg-gray-50"
                                     >
-                                        <td className="px-4 py-2">
-                                            {order.id}
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            {order.product}
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            {order.price} BDT
-                                        </td>
+                                        <td className="px-4 py-2">{order.title}</td>
+                                        <td className="px-4 py-2">{order.category}</td>
+                                        <td className="px-4 py-2">{order.rentPrice} BDT</td>
                                         <td className="px-4 py-2">
                                             <span
                                                 className={`badge ${
                                                     order.status === 'Delivered'
                                                         ? 'badge-success'
-                                                        : order.status ===
-                                                          'Pending'
+                                                        : order.status === 'Pending'
                                                         ? 'badge-warning'
                                                         : 'badge-info'
                                                 }`}
@@ -104,9 +98,7 @@ export default function MyOrders() {
                                                 {order.status}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-2">
-                                            {order.date}
-                                        </td>
+                                        
                                     </motion.tr>
                                 ))}
                             </tbody>
@@ -123,15 +115,9 @@ export default function MyOrders() {
                                 transition={{ duration: 0.3 }}
                                 className="bg-white rounded-lg shadow p-4"
                             >
-                                <p>
-                                    <strong>Order ID:</strong> {order.id}
-                                </p>
-                                <p>
-                                    <strong>Product:</strong> {order.product}
-                                </p>
-                                <p>
-                                    <strong>Price:</strong> {order.price} BDT
-                                </p>
+                                <p><strong>Order ID:</strong> {order.title}</p>
+                                <p><strong>Product:</strong> {order.category}</p>
+                                <p><strong>Price:</strong> {order.rentPrice} BDT</p>
                                 <p>
                                     <strong>Status:</strong>{' '}
                                     <span
@@ -146,9 +132,7 @@ export default function MyOrders() {
                                         {order.status}
                                     </span>
                                 </p>
-                                <p>
-                                    <strong>Date:</strong> {order.date}
-                                </p>
+                                
                             </motion.div>
                         ))}
                     </div>
@@ -161,3 +145,7 @@ export default function MyOrders() {
         </div>
     );
 }
+
+
+
+

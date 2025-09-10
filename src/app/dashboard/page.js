@@ -64,6 +64,13 @@ export default function DashboardHome() {
                 const avgPrice =
                     data.reduce((acc, r) => acc + (r.rentPrice || 0), 0) /
                     (data.length || 1);
+                // const avgPriceFormatted = avgPrice.toFixed(2);
+                const avgPriceFormatted = new Intl.NumberFormat('en-US', {
+                    style: 'decimal',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                }).format(avgPrice); // "1,234.56"
+                console.log(avgPriceFormatted);
 
                 setStats({ totalRentals, totalUsers, avgPrice });
 
@@ -114,7 +121,7 @@ export default function DashboardHome() {
     return (
         <div className="space-y-6">
             {/* Summary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 text-base-100 gap-4">
                 <StatCard title="Total Rentals" value={stats.totalRentals} />
                 <StatCard
                     title="Total Users"
@@ -123,7 +130,7 @@ export default function DashboardHome() {
                 />
                 <StatCard
                     title="Average Rent Price"
-                    value={`৳${stats.avgPrice.toFixed(2)}`}
+                    value={stats.avgPriceFormatted}
                     color="bg-purple-500"
                 />
             </div>
