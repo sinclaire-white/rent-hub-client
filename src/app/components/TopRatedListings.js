@@ -1,45 +1,38 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import ListingCard from './ListingCard';
+import { useCachedFetch } from "./hooks/useCachedFetch";
+import ListingCard from "./ListingCard";
+import { motion } from "framer-motion";
 
 export default function TopRatedListings() {
-  const [listings, setListings] = useState([]);
-  const api = process.env.NEXT_PUBLIC_BASE_URL;
-  // console.log('listing: ', listings);
-  // console.log(Array.isArray(listings), listings);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetch(`${api}/api/rent-posts?sort=rating_desc`)
-      .then(res => res.json())
-      .then(data => {
-        // Correctly handle the API response format
-        const listingsArray = data.listings || data;
-        
-        if (Array.isArray(listingsArray)) {
-          setListings(listingsArray);
-        } else {
-          console.error("Fetched data is not an array:", listingsArray);
-          setListings([]);
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch top rated listings:", error);
-        setListings([]);
-        setIsLoading(false);
-      });
-  }, []);
+  const { data: listings, isLoading, error } = useCachedFetch("/api/rent-posts?sort=rating_desc");
 
   if (isLoading) {
     return (
       <section className="py-12 text-center">
-        <h2 className="mb-8 text-3xl font-bold text-base-content">
-          Top Rated Listings
-        </h2>
-        <div className="flex items-center justify-center h-48">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
+        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Top Rated Listings</h2>
+        <div className="grid max-w-7xl grid-cols-1 gap-6 mx-auto md:grid-cols-3">
+          {[...Array(3)].map((_, index) => (
+            <div key={index} className="animate-pulse">
+              <div className="w-full h-48 bg-gray-200 rounded-lg dark:bg-gray-700"></div>
+              <div className="mt-4 space-y-2">
+                <div className="w-3/4 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
+                <div className="w-1/2 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
+                <div className="w-2/3 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-12 text-center">
+        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Top Rated Listings</h2>
+        <div className="p-8 text-center text-error dark:text-error">
+          <p>Failed to load listings. Please try again later.</p>
         </div>
       </section>
     );
@@ -48,10 +41,8 @@ export default function TopRatedListings() {
   if (listings.length === 0) {
     return (
       <section className="py-12 text-center">
-        <h2 className="mb-8 text-3xl font-bold text-base-content">
-          Top Rated Listings
-        </h2>
-        <div className="p-8 text-center text-gray-500">
+        <h2 className="mb-8 text-3xl font-bold text-base-content dark:text-base-content">Top Rated Listings</h2>
+        <div className="p-8 text-center text-gray-500 dark:text-gray-400">
           <p>No top-rated listings are available at the moment.</p>
         </div>
       </section>
@@ -60,10 +51,13 @@ export default function TopRatedListings() {
 
   return (
     <section className="py-12">
-      <h2 className="mb-8 text-3xl font-bold text-center text-base-content">
-        Top Rated Listings
-      </h2>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <h2 className="mb-8 text-3xl font-bold text-center text-base-content dark:text-base-content">Top Rated Listings</h2>
+      <motion.div
+        className="grid max-w-6xl grid-cols-1 gap-6 mx-auto md:grid-cols-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {listings.map(listing => (
           <ListingCard
             key={listing._id}
@@ -72,10 +66,9 @@ export default function TopRatedListings() {
             price={listing.rentPrice}
             category={listing.category}
             image={listing.imageUrl}
-            aiSummary={listing.aiSummary}
           />
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

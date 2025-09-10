@@ -5,12 +5,13 @@ import FeaturedListings from "./components/FeaturedListings";
 
 import Newsletter from "./components/Newsletter";
 import PopularListings from "./components/PopularListings";
+import TestimonialsSection from "./components/Testimonials";
 import TopRatedListings from "./components/TopRatedListings";
 
 export default function Home() {
   return (
     <div>
-      <main className="mx-auto max-w-7xl">
+      <main className="px-2 mx-auto max-w-7xl md:px-6">
         <Banner></Banner>
         <Categories></Categories>
         <FeaturedListings></FeaturedListings>
@@ -18,6 +19,7 @@ export default function Home() {
         <TopRatedListings></TopRatedListings>
         <BecomeOwnerSection></BecomeOwnerSection>
         <Newsletter></Newsletter>
+        <TestimonialsSection></TestimonialsSection>
       </main>
       
     </div>

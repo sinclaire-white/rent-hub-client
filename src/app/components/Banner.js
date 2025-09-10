@@ -30,7 +30,7 @@ export default function Banner() {
   };
 
   return (
-    <section className="relative w-full h-[80vh] flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 overflow-hidden">
+    <section className=" relative w-full h-[80vh] flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 overflow-hidden mt-5">
       {/* Animated Background Circles */}
       <div className="absolute w-[600px] h-[600px] bg-white/10 rounded-full animate-ping top-[-150px] left-[-150px]"></div>
       <div className="absolute w-[400px] h-[400px] bg-white/20 rounded-full animate-pulse bottom-[-100px] right-[-100px]"></div>

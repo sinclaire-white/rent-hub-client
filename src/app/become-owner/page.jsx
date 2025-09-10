@@ -1,10 +1,14 @@
+// app/become-owner/page.jsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { HiUser, HiMail, HiPhone, HiHome, HiLocationMarker, HiMailOpen } from "react-icons/hi";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import SplitText from "../components/ui/SplitText";
 
 export default function BecomeOwnerPage() {
+  const { data: session, status } = useSession();
   const [form, setForm] = useState({
     email: "",
     name: "",
@@ -14,6 +18,37 @@ export default function BecomeOwnerPage() {
     postcode: "",
   });
   const [loading, setLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch user data from the API to pre-fill the form
+    if (status === "authenticated") {
+      const fetchUserData = async () => {
+        try {
+          const res = await fetch("/api/users");
+          const data = await res.json();
+          if (res.ok) {
+            setForm({
+              ...form,
+              email: data.email || "",
+              name: data.name || "",
+              phone: data.phone || "",
+              address: data.address || "",
+              city: data.city || "",
+              postcode: data.postcode || ""
+            });
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        } finally {
+          setIsPageLoading(false);
+        }
+      };
+      fetchUserData();
+    } else if (status === "unauthenticated") {
+      setIsPageLoading(false);
+    }
+  }, [status]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -40,7 +75,7 @@ export default function BecomeOwnerPage() {
         Swal.fire({
           icon: "info",
           title: "Already an Owner",
-          text: "You are already an owner!",
+          text: "You are already an owner! Redirecting to your dashboard.",
         }).then(() => window.location.href = "/dashboard");
         return;
       }
@@ -53,8 +88,12 @@ export default function BecomeOwnerPage() {
       });
       const data = await res.json();
 
-      if (data.url) window.location.href = data.url;
-      else console.error("Payment init failed:", data);
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Payment initiation failed:", data);
+        Swal.fire("Error", "Something went wrong with payment. Try again!", "error");
+      }
 
     } catch (err) {
       console.error(err);
@@ -64,75 +103,111 @@ export default function BecomeOwnerPage() {
     }
   };
 
+  if (isPageLoading || status === "loading") {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-base-100">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-base-100 p-6">
-      <div className="bg-base-200 shadow-2xl rounded-3xl p-10 w-full max-w-xl text-center transform transition-all duration-500 ">
-        <h1 className="text-4xl font-bold mb-8 text-blue-700 animate-bounce">Apply for Owner</h1>
-        <div className="grid gap-5 ">
-          <div className="relative">
-            <HiUser className="absolute top-3 left-3 text-gray-400" size={20} />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-base-100 px-4 py-6 text-base-content sm:px-6">
+      <div className="bg-base-200 shadow-2xl rounded-3xl p-6 md:p-10 w-full max-w-xl text-center transform transition-all duration-500 ">
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 text-primary">
+          <SplitText
+            text="Become an owner"
+            className="font-extrabold"
+            splitType="words"
+            from={{ opacity: 0, y: 50 }}
+            to={{ opacity: 1, y: 0 }}
+            delay={100}
+            duration={0.8}
+          />
+        </h1>
+        <p className="mb-6 text-base-content/80 text-lg">
+          Please fill out the form below to apply to be a verified owner and start renting out your items.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+          <div className="relative col-span-1 md:col-span-2">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-base-content/50 pointer-events-none">
+              <HiUser size={20} />
+            </div>
             <input
               type="text"
               name="name"
               placeholder="Full Name"
               value={form.name}
               onChange={handleChange}
-              className="border pl-10 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="border pl-10 md:pl-12 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-primary transition bg-base-100 text-base-content"
+              required
             />
           </div>
-          <div className="relative">
-            <HiMail className="absolute top-3 left-3 text-gray-400" size={20} />
+          <div className="relative col-span-1 md:col-span-2">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-base-content/50 pointer-events-none">
+              <HiMail size={20} />
+            </div>
             <input
               type="email"
               name="email"
               placeholder="Email"
               value={form.email}
               onChange={handleChange}
-              className="border pl-10 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="border pl-10 md:pl-12 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-primary transition bg-base-100 text-base-content"
+              required
             />
           </div>
           <div className="relative">
-            <HiPhone className="absolute top-3 left-3 text-gray-400" size={20} />
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-base-content/50 pointer-events-none">
+              <HiPhone size={20} />
+            </div>
             <input
               type="tel"
               name="phone"
               placeholder="Phone Number"
               value={form.phone}
               onChange={handleChange}
-              className="border pl-10 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="border pl-10 md:pl-12 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-primary transition bg-base-100 text-base-content"
             />
           </div>
           <div className="relative">
-            <HiHome className="absolute top-3 left-3 text-gray-400" size={20} />
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-base-content/50 pointer-events-none">
+              <HiHome size={20} />
+            </div>
             <input
               type="text"
               name="address"
               placeholder="Address"
               value={form.address}
               onChange={handleChange}
-              className="border pl-10 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="border pl-10 md:pl-12 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-primary transition bg-base-100 text-base-content"
             />
           </div>
           <div className="relative">
-            <HiLocationMarker className="absolute top-3 left-3 text-gray-400" size={20} />
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-base-content/50 pointer-events-none">
+              <HiLocationMarker size={20} />
+            </div>
             <input
               type="text"
               name="city"
               placeholder="City"
               value={form.city}
               onChange={handleChange}
-              className="border pl-10 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="border pl-10 md:pl-12 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-primary transition bg-base-100 text-base-content"
             />
           </div>
           <div className="relative">
-            <HiMailOpen className="absolute top-3 left-3 text-gray-400" size={20} />
+            <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-base-content/50 pointer-events-none">
+              <HiMailOpen size={20} />
+            </div>
             <input
               type="text"
               name="postcode"
               placeholder="Postcode"
               value={form.postcode}
               onChange={handleChange}
-              className="border pl-10 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="border pl-10 md:pl-12 p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-primary transition bg-base-100 text-base-content"
             />
           </div>
         </div>
@@ -140,12 +215,28 @@ export default function BecomeOwnerPage() {
         <button
           onClick={handlePayment}
           disabled={loading}
-          className="mt-8 btn btn-neutral w-full rounded-2xl shadow-lg transform transition-all duration-300 hover:scale-105"
+          className="mt-4 btn btn-primary w-full rounded-2xl shadow-lg font-semibold cursor-pointer transition-all border-b-[4px] border-primary-focus hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
         >
-          {loading ? "Redirecting..." : "Pay 500৳"}
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <span className="loading loading-spinner loading-sm mr-2"></span>
+              Redirecting...
+            </span>
+          ) : (
+            "Pay 500৳ to Become an Owner"
+          )}
         </button>
-        <Link href={"/"} className="btn btn-outline mt-3 w-full rounded-2xl">
-          Go Back
+        <Link href={"/"} passHref>
+          <button
+            class="group/button relative mt-3 inline-flex w-full items-center justify-center overflow-hidden rounded-2xl bg-base-200/30 px-6 py-2 text-base font-semibold text-base-content transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl hover:shadow-base-content/50 border border-base-content/20"
+          >
+            <span class="">Go Back</span>
+            <div
+              class="absolute inset-0 flex h-full w-full justify-center [transform:skew(-13deg)_translateX(-100%)] group-hover/button:duration-1000 group-hover/button:[transform:skew(-13deg)_translateX(100%)]"
+            >
+              <div class="relative h-full w-10 bg-base-content/20"></div>
+            </div>
+          </button>
         </Link>
       </div>
     </div>
