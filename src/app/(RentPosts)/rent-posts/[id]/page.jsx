@@ -66,18 +66,19 @@ const DetailPage = ({ params: rawParams }) => {
 
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const unwrappedParams = React.use(params);
 
   const { data: session } = useSession();
   const router = useRouter();
 
   useEffect(() => {
     const fetchPost = async () => {
-      const data = await getRentPost(params.id);
+      const data = await getRentPost(unwrappedParams.id);
       setPost(data);
       setLoading(false);
     };
     fetchPost();
-  }, [params.id]);
+  }, [unwrappedParams.id]);
 
   const handleBookNow = (e) => {
     e.preventDefault();
