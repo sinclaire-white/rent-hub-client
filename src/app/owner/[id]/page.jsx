@@ -1,42 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import OwnerDetails from "@/app/components/OwnerDetails";
 import OwnerPosts from "@/app/components/OwnerPosts";
 import ReviewsSection from "@/app/components/ReviewsSection";
-import * as React from "react";
 
 export default function OwnerProfile({ params: rawParams }) {
-  // unwrap params promise safely
-  const params = React.use(rawParams);
+  // ✅ Unwrap params using React.use()
+  const params = use(rawParams);
+  const ownerId = params?.id;
 
-  const [data, setData] = useState(null);
+  const [owner, setOwner] = useState(null);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch owner by ID
   useEffect(() => {
-    if (!params?.id) return;
+    if (!ownerId) return;
 
     setLoading(true);
-    fetch(`/api/owner/${params.id}`)
+    setError(null);
+
+    fetch(`/api/owner/${ownerId}`)
       .then((res) => res.json())
       .then((data) => {
-        setData(data);
+        if (data.error) {
+          setOwner(null);
+          setError(data.error);
+        } else {
+          setOwner(data); // direct owner object
+        }
         setLoading(false);
       })
       .catch((err) => {
         console.error(err);
+        setOwner(null);
+        setError("Failed to fetch owner");
         setLoading(false);
       });
-  }, [params?.id]);
+  }, [ownerId]);
+
+  // Fetch owner's posts using owner email
+  useEffect(() => {
+    if (!owner?.email) return;
+
+    fetch(`/api/rent-posts?ownerEmail=${encodeURIComponent(owner.email)}`)
+      .then((res) => res.json())
+      .then((data) => setPosts(data || []))
+      .catch((err) => {
+        console.error(err);
+        setPosts([]);
+      });
+  }, [owner?.email]);
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (!data?.owner) return <p className="text-center mt-10">Owner not found</p>;
+  if (error || !owner) return <p className="text-center mt-10">Owner not found</p>;
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">
-      <OwnerDetails owner={data.owner} />
-      <OwnerPosts posts={data.posts} />
-      <ReviewsSection ownerId={params.id} />
+      <OwnerDetails owner={owner} />
+      <OwnerPosts posts={posts} />
+      <ReviewsSection ownerId={owner._id} />
     </div>
   );
 }

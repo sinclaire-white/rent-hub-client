@@ -1,6 +1,5 @@
-// `app/rent-posts/[id]/page.js`
-"use client"
-import React, { useState, useEffect } from "react";
+"use client";
+import React, { useState, useEffect, use } from "react"; // ✅ use removed unnecessary 'use'
 import { FaStar, FaUser } from "react-icons/fa";
 import AIInsights from "./AIInsights";
 import { notFound, useRouter } from "next/navigation";
@@ -12,20 +11,12 @@ import Image from "next/image";
 const SkeletonDetailPage = () => (
   <div className="min-h-screen w-full bg-base-100 text-base-content flex flex-col my-10 animate-pulse">
     <main className="w-full mx-auto px-2 sm:px-6 py-8 flex flex-col md:flex-row gap-10">
-      {/* Image Skeleton */}
       <div className="md:w-7/12 w-full flex flex-col items-center justify-center gap-4">
         <div className="w-full aspect-video rounded-2xl shadow-lg overflow-hidden flex items-center justify-center bg-base-300 h-96"></div>
       </div>
-      {/* Details Skeleton */}
       <div className="md:w-5/12 w-full flex flex-col gap-5 justify-center">
         <div className="w-full h-10 rounded-md bg-base-300"></div>
         <div className="w-full h-24 rounded-md bg-base-300"></div>
-        <div className="bg-base-200 rounded-xl p-4 mb-2">
-          <div className="w-1/2 h-6 rounded-md bg-base-300 mb-2"></div>
-          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
-          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
-          <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
-        </div>
         <div className="bg-base-200 rounded-xl p-4 mb-2">
           <div className="w-1/2 h-6 rounded-md bg-base-300 mb-2"></div>
           <div className="w-full h-4 rounded-md bg-base-300 my-1"></div>
@@ -50,17 +41,34 @@ function formatDate(dateStr) {
   return `${day}/${month}/${year}`;
 }
 
+// Fetch post details including ownerId if missing
 async function getRentPost(id) {
   const res = await fetch(`/api/rent-posts/${id}`, { cache: "no-store" });
   if (!res.ok) return null;
   const post = await res.json();
   if (post && post._id) post.id = post._id;
+
+  // ✅ Fetch owner using email if ownerId missing
+  if (!post.ownerId && post.email) {
+    const ownerRes = await fetch(`/api/users?email=${encodeURIComponent(post.email)}`, { cache: "no-store" });
+    if (ownerRes.ok) {
+      const ownerData = await ownerRes.json();
+      if (ownerData?._id) post.ownerId = ownerData._id;
+      if (ownerData?.firstName) post.ownerName = `${ownerData.firstName} ${ownerData.lastName || ""}`;
+    }
+  }
+
   return post;
 }
 
-const DetailPage = ({ params }) => {
+const DetailPage = ({ params: rawParams }) => {
+  const params = rawParams;
+
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const { data: session } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -71,8 +79,6 @@ const DetailPage = ({ params }) => {
     fetchPost();
   }, [params.id]);
 
-  const { data: session } = useSession();
-  const router = useRouter();
   const handleBookNow = (e) => {
     e.preventDefault();
     if (!post) return;
@@ -87,9 +93,10 @@ const DetailPage = ({ params }) => {
   if (loading) return <SkeletonDetailPage />;
   if (!post) return notFound();
 
-  const avgRating = Array.isArray(post.ratings) && post.ratings.length > 0
-    ? post.ratings.reduce((a, b) => a + b, 0) / post.ratings.length
-    : 0;
+  const avgRating =
+    Array.isArray(post.ratings) && post.ratings.length > 0
+      ? post.ratings.reduce((a, b) => a + b, 0) / post.ratings.length
+      : 0;
   const roundedRating = Math.round(avgRating * 10) / 10;
 
   return (
@@ -111,28 +118,22 @@ const DetailPage = ({ params }) => {
         </div>
         <div className="md:w-5/12 w-full flex flex-col gap-5 justify-center">
           <div className="flex items-center gap-4 mb-1">
-            <h1 className="text-3xl font-bold text-base-content leading-tight">
-              {post.title}
-            </h1>
+            <h1 className="text-3xl font-bold text-base-content leading-tight">{post.title}</h1>
             {avgRating > 0 && (
               <div className="flex items-center gap-1 bg-base-200 px-3 py-1 rounded-lg">
                 <span>Rating: </span>
                 {[...Array(5)].map((_, i) => (
                   <FaStar
                     key={i}
-                    className={
-                      i < Math.round(avgRating)
-                        ? "text-yellow-400 text-lg"
-                        : "text-gray-300 text-lg"
-                    }
+                    className={i < Math.round(avgRating) ? "text-yellow-400 text-lg" : "text-gray-300 text-lg"}
                   />
                 ))}
               </div>
             )}
           </div>
-          <p className="text-base-content mb-2 text-base leading-relaxed">
-            {post.description}
-          </p>
+
+          <p className="text-base-content mb-2 text-base leading-relaxed">{post.description}</p>
+
           <div className="bg-base-200 rounded-xl p-4 mb-2">
             <div className="font-semibold text-base-content mb-2">Information</div>
             <div className="flex justify-between py-1 text-sm">
@@ -149,8 +150,7 @@ const DetailPage = ({ params }) => {
             <div className="flex justify-between py-1 text-sm">
               <span>Availability</span>
               <span className="font-bold text-blue-700">
-                {formatDate(post.availableFrom)} -{" "}
-                {formatDate(post.availableTo)}
+                {formatDate(post.availableFrom)} - {formatDate(post.availableTo)}
               </span>
             </div>
             <div className="flex justify-between py-1 text-sm">
@@ -158,16 +158,21 @@ const DetailPage = ({ params }) => {
               <span className="font-bold text-base-content">{post.location}</span>
             </div>
           </div>
+
           <div className="bg-base-200 rounded-xl p-4 mb-2">
             <div className="font-semibold text-base-content mb-2">Contact</div>
             <div className="flex justify-between py-1 text-sm">
               <span>Owner</span>
-              <Link
-                href={`/owner/${post.ownerId}`}
-                className="font-bold text-gray-900 hover:text-blue-600 hover:underline transition"
-              >
-                {post.ownerName}
-              </Link>
+              {post.ownerId ? (
+                <Link
+                  href={`/owner/${post.ownerId}`}
+                  className="font-bold text-gray-900 hover:text-blue-600 hover:underline transition"
+                >
+                  {post.ownerName || post.owner}
+                </Link>
+              ) : (
+                <span className="font-bold text-base-content">{post.ownerName}</span>
+              )}
             </div>
             <div className="flex justify-between py-1 text-sm">
               <span>Email</span>
@@ -175,11 +180,10 @@ const DetailPage = ({ params }) => {
             </div>
             <div className="flex justify-between py-1 text-sm">
               <span>Contact</span>
-              <span className="font-bold text-base-content">
-                {post.contactNumber}
-              </span>
+              <span className="font-bold text-base-content">{post.contactNumber}</span>
             </div>
           </div>
+
           {Array.isArray(post.reviews) && post.reviews.length > 0 && (
             <div className="bg-base-200 rounded-xl p-4 mb-2">
               <div className="font-semibold text-base-content mb-2 text-lg">Reviews</div>
@@ -203,11 +207,11 @@ const DetailPage = ({ params }) => {
           )}
         </div>
       </main>
+
       <AIInsights post={post} />
+
       <section className="w-full mx-auto px-2 sm:px-6 mt-8 flex flex-col items-center">
-        <div className="mb-2 text-lg font-semibold text-base-content self-start">
-          Location Map
-        </div>
+        <div className="mb-2 text-lg font-semibold text-base-content self-start">Location Map</div>
         <div className="w-full h-64 md:h-80 rounded-2xl overflow-hidden shadow-lg bg-base-200">
           <iframe
             title="Google Map"
@@ -221,6 +225,7 @@ const DetailPage = ({ params }) => {
             src={`https://maps.google.com/maps?q=${post.latitude},${post.longitude}&z=15&output=embed`}
           ></iframe>
         </div>
+
         <div className="flex gap-4 mt-8">
           <button
             className="bg-blue-600 text-white px-5 font-semibold py-3 rounded-xl text-lg hover:bg-blue-700 transition"
