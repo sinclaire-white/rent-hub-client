@@ -58,18 +58,20 @@ async function getRentPost(id) {
   return post;
 }
 
+
 const DetailPage = ({ params }) => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const unwrappedParams = React.use(params);
 
   useEffect(() => {
     const fetchPost = async () => {
-      const data = await getRentPost(params.id);
+      const data = await getRentPost(unwrappedParams.id);
       setPost(data);
       setLoading(false);
     };
     fetchPost();
-  }, [params.id]);
+  }, [unwrappedParams.id]);
 
   const { data: session } = useSession();
   const router = useRouter();
