@@ -4,7 +4,8 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const { firstName, lastName, email, phone, gender, password, imageUrl } = await req.json();
+    const { firstName, lastName, email, phone, gender, password, imageUrl } =
+      await req.json();
 
     const client = await clientPromise;
     const db = client.db(process.env.DB_NAME || "RentHub");
@@ -16,10 +17,16 @@ export async function POST(req) {
 
     if (existingUser) {
       if (existingUser.email === email) {
-        return NextResponse.json({ message: "Email already exists" }, { status: 400 });
+        return NextResponse.json(
+          { message: "Email already exists" },
+          { status: 400 }
+        );
       }
       if (existingUser.phone === phone) {
-        return NextResponse.json({ message: "Phone number already exists" }, { status: 400 });
+        return NextResponse.json(
+          { message: "Phone number already exists" },
+          { status: 400 }
+        );
       }
     }
 
@@ -33,7 +40,7 @@ export async function POST(req) {
       gender,
       image: imageUrl || null,
       password: hashedPassword,
-      role: "owner",
+      role: "renter",
       createdAt: new Date(),
     });
 
